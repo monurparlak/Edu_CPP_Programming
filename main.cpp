@@ -626,14 +626,27 @@ void func(intconst * ptr); -> Overloading yoktur.
 
 *** MÜLAKAT:
 * this keyword
+  this bir anahtar sözcüktür.
+  this bir pointer'dır. Üye fonksiyonun adresini verir.
   non-static üye fonksiyonları için kullanılır.
 
-* this pointer
-  Üye fonksiyonun adresini verir.
-
 * front -> ilk nesneyi referans alır.
+  back -> son nesneyi referans alır.
 
-* back -> son nesneyi referans alır.
+* Üye fonksiyonu içinde fonksiyonun gizli parametre değeri değişkeni bir adres,
+  bir pointerdır. Global bir fonksiyona gönderecekseniz...
+  Yani bu fonksiyon nesne için çağrıldıysa o nesnenin adresini (kendisini)
+  global bir fonksiyona gönderecekse "this pointer" kullanılmalıdır.
+
+***
+
+*** MÜLAKAT:
+* const member functions (Const olması gereken her şey const olacak)
+
+* const üye fonksiyonlar içinde sınıfın non-static veri elemanlarına atam yapamayız
+
+* const üye fonksiyonlar içinde sınıfın non-const üye 
+
 ***
 
 *** MÜLAKAT:
@@ -669,6 +682,7 @@ void func(intconst * ptr); -> Overloading yoktur.
   Cevap -> Değişir.
 ***
 
+#include <math.h>
 ******************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -719,6 +733,66 @@ void func(intconst * ptr); -> Overloading yoktur.
   * 
 ***
 
+* Storage duration:
+  * Automatic storage class: 
+  * Static storage class: 
+  * Dynamic storage class: 
+  * Thread-local storage: 
+
+* Global sınıf nesnesi:
+  * main çalışmadan önce hayata başlıyor.
+  * ctor içinde gizli parametre değişkeni vardır.
+  * 
+
+*** MÜLAKAT:
+  * Aynı kaynak dosyada tanımlanan global değişkenlerin ctor çağrılması
+  * belirli bir sıraya dahildir.
+  * 
+  * Static initialization fiasco: Aynı programın farklı kaynak dosyalarında
+  * tanımlanan global sınıf nesnelerinin ctor'larının çağrılma sırası
+  * dil tarafından belirlenmemiştir.
+  * 
+***
+
+* ctor (member) initializer list
+  * Sınıfın ctor'ının, sınıfın non-static veri elemanlarını initialize etme sentaksıdır.
+  * Yani bir sınıfın non-static veri elemanlarını initalize etmek istiyorsak
+  * sınıfın ctor için member initializer list
+  * 
+
+*** MÜLAKAT:
+  * 
+class Myclass {
+public:
+    myclass()
+    {
+        mx = 0; ///< Atama yapılır. Ama yapmayın!
+        my = 0; ///< Atama yapılır. Ama yapmayın!
+    }
+
+private:
+    int mx, my; ///< mx ve my elemanlarını initialize edilir.
+};
+  * 
+***
+
+*** MÜLAKAT:
+  * Class içindeki elemanların initialize işlemi aşağıdakilerin hangisinde yapılır?
+
+class Myclass {
+public:
+    myclass() : my(10), mx(20)      ///< Ctor initialize list sırasında mıdır?
+    {
+
+    }
+
+private:
+    int mx, my;                     ///< Bildirimdeki sırada mıdır?
+};
+  * Cevap: BİLDİRİMDEKİ SIRADADIR.
+***
+
+
 ******************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -731,7 +805,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-*
+  * 
+  * 
 ***
 
 ******************************************************************************/
@@ -746,7 +821,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* YAPILMADI
+  * 
+  * 
 ***
 
 ******************************************************************************/
@@ -762,7 +838,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/
@@ -824,7 +901,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/
@@ -840,7 +918,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/
@@ -869,7 +948,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -984,7 +1064,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -998,7 +1079,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1026,7 +1108,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1196,7 +1279,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1211,7 +1295,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1226,7 +1311,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1240,7 +1326,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1255,7 +1342,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1270,7 +1358,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1284,7 +1373,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1355,7 +1445,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1369,7 +1460,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1384,7 +1476,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1428,7 +1521,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1443,7 +1537,8 @@ void func(intconst * ptr); -> Overloading yoktur.
 ** Education
 
 *** MÜLAKAT:
-* 
+  * 
+  * 
 ***
 
 ******************************************************************************/  
@@ -1463,207 +1558,4 @@ KOLAY      25     20          05    ****    XX          XX
 ORTA       36     22          14    ****    XX          XX
 ZOR        06     04          02    ****    XX          XX
 TOPLAM:    67     46          21    ****    XX          XX
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHARAM     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHARAM     -     
-
-
-*** MÜLAKAT: KOLAYHARAM     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHARAM     -     
-
-
-*** MÜLAKAT: KOLAYHARAM     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: KOLAYHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-11
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-15
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-20
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-25
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-30
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-
-*** MÜLAKAT: ORTAHELAL     -     
-
-35
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ORTAHARAM     -     
-
-
-*** MÜLAKAT: ZORHELAL     -     
-
-
-*** MÜLAKAT: ZORHELAL     -     
-
-
-*** MÜLAKAT: ZORHELAL     -     
-
-
-*** MÜLAKAT: ZORHARAM     -     
-
-
-*** MÜLAKAT: ZORHARAM     -     
-
-
-*** MÜLAKAT: ZORHELAL     -     
-
-
-******************************************************************************/  
-
+******************************************************************************
