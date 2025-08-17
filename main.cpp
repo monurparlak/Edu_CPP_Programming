@@ -857,17 +857,77 @@ private:
 /******************************************************************************
 ** Education
 
+* Copy Assignment
+  * non-static member func.
+  * x = y değerlemesinde -> x.copy_assignment(y) olmaktadır.
+  * x: copy assignment içindeki this pointer'inin adresidir.
+  * y: func. parametresine arguman olarak gönderilecek.
+  * 
+  * non-static public inline üye func. olmak zorundadır.
+  * 
+  * dtor -> release resources
+  * copy ctor -> deep copy
+  * copy assignment -> release resources
+  * 
+  * Myclass& operator = (const Myclass &); -> copy assignment
+  * 
 
 
-* 
+* Move ctor
+  * copy ctor -> L-Value
+  * move ctor -> R-Value
   * 
+  * Myclass(const Myclass&);  -> copy ctor
+  * Myclass(Myclass&&);       -> move ctor
+  * 
+  * Myclass& operator = (Myclass &&); -> move assignment
   * 
 
 
-*** MÜLAKAT:
+*** MÜLAKAT: Myclass move ve copy ctor vardır. Çalışınca copy mi move mu çağrılır?
   * 
+class Myclass {
+public:
+  Myclass() = default;              ///< Default ctor
+
+  Myclass(const Myclass&) ///< copy ctor
+  {
+    std::cout << "copy ctor\n";
+  }
+
+  Myclass(Myclass&&) ///< move ctor
+  {
+    std::cout << "move ctor\n";
+  }
+
+};
+
+void func(const Myclass&)
+{
+  std::cout << "const Myclass&\n";
+}
+void func(Myclass&&)
+{
+  std::cout << "Myclass&&\n";
+}
+
+int main()
+{
+  Myclass m;
+  func(std::move(m));
+}
   * 
+  * Cevap: Hiçbiri çağrılmaz.
 ***
+
+
+* Genel özet:
+  * İster L-Value olsun : Myclass &r
+  * İster R-Value olsun : Myclass &&rr
+  * 
+  * Referans değişkeni varsa,
+  * O referans değişkeni oluşturduğu isim her zaman : L-Value'dur 
+  * 
 
 ******************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
@@ -881,6 +941,25 @@ private:
 /******************************************************************************
 ** Education
 
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+|               | default ctor  | destructor    | copy ctor     | copy assign   | move ctor     | move assign   |
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| hiçbiri       | defaulted     | defaulted     | defaulted     | defaulted     | defaulted     | defaulted     |
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| constructor   | not declared  | defaulted     | defaulted     | defaulted     | defaulted     | defaulted     |
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| default ctor  | user declared | defaulted     | defaulted     | defaulted     | defaulted     | defaulted     |
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| destructor    | defaulted     | user declared | defaulted     | defaulted     | not declared  | not declared  |
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| copy ctor     | not declared  | defaulted     | user declared | defaulted     | not declared  | not declared  |
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| copy assign   | defaulted     | defaulted     | defaulted     | user declared | not declared  | not declared  |
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| move ctor     | not declared  | defaulted     | deleted       | deleted       | user declared | not declared  |
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| move assign   | defaulted     | defaulted     | deleted       | deleted       | not declared  | user declared |
++---------------+---------------+---------------+---------------+---------------+---------------+---------------+
 
 
 * 
