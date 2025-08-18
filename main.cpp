@@ -962,6 +962,121 @@ int main()
 +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
 
 
+* Constructor Structures
+  * default ctor : Herhangi bir ctor belirlenmezse derleyici belirler.
+  * destructor : Her zaman vardır.
+  * 
+
+
+* move-only type
+  * move ctor ve assignment yapılıyor ama copy ctor ve assignment hata veriyor.
+  * Asla move member'ları delete etmeyiniz.
+  * 
+
+
+* Yeni konular
+  * temporary objects : İsmi olmayan nesnelere verilen isimdir.
+  * explicit ctor     : 
+  * conversion ctor   : 
+  * 
+
+
+* 
+  * Normalde bir geçici nesne oluştuğunda, hayata gelen geçici nesnenin
+  *     hayatı geçici nesneyi içine alan ifadenin yürütülmesiyle sona erer.
+  * 
+  * Tipik olarak (böyle bir zorunluluk yoktur)
+  *     move member'lar
+  *     kaynağı çalınmış diğer nesneyi
+  *     default ctor edilmiş state'te bırakır.
+  * 
+
+
+* Moved-From State
+  * Kaynağı çalınmış bir nesne
+  *     a) Geçerli bir durumda (in a valid state)
+  *     b) It's value unknow
+  * 
+
+
+* Conversion Constructor
+  * Dönüştüren kurucu işlevidir.
+  * Sınıfların (özellikle tek parametreli ctor'ları) varlık nedenlerinin yanı sıra
+  *     sınıf türünden olmayan bir ifadeyi sınıf türüne dönüştürme görevini gerçekleştirir.
+  * 
+  * Örnek:
+class Myclass {
+public:
+    Myclass() = default;
+    Myclass(int x)
+    {
+        std::cout << "Myclass(int x) x" << x << "\n";
+        std::cout << "this = " << this << "\n";
+    }
+    
+    ~Myclass()
+    {
+        std::cout << "Myclass dtor this =" << this << "\n";
+    }
+
+};
+
+int main()
+{
+    Myclass mx;
+
+    mx = 5;
+}
+  * 
+
+
+* Değerlendirme
+  * Eğer bir dönüşüm aşağıdaki dönüşüm sekanslarından biriyle gerçekleştirilebiliyor ise
+  *     derleyici bu dönüşümü örtülü olarak yapmak zorundadır.
+  * 
+  * user-defined conversion + standard conversion
+  * standard conversion + user defined conversion
+  * 
+
+
+* Explicit ctor
+  * Bir sınıfın (özellikle) tek parametreli ctor'larını
+  *     (aksi yönde karar almanızı gerektirecek makul bir neden olmadıkça)
+  *     explicit yapınız!!!
+  * 
+  * explicit -->> explicit only!!!
+  * 
+  * 
+  * Örnek:
+class Myclass {
+public:
+    Myclass();
+    explicit ~Myclass(int);
+
+};
+
+int main()
+{
+    Myclass m;
+    m = 23; ///< Illegal
+}
+  *
+  * 
+  * 
+
+******************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+/******************************************************************************
+** VIDEO 15 - Copy Elision & Dinamik Ömürlü Nesneler & New & Delete
+******************************************************************************/
+/******************************************************************************
+** Education
+
+
+
 * 
   * 
   * 
@@ -978,28 +1093,21 @@ int main()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 /******************************************************************************
-** VIDEO 15 - Copy Elision & Dinamik Ömürlü Nesneler & New & Delete
-******************************************************************************/
-/******************************************************************************
-** Education
-
-*** MÜLAKAT:
-* bitti
-***
-
-******************************************************************************/
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-/******************************************************************************
 ** VIDEO 16 - Smart Pointer & Class Static Data Members
 ******************************************************************************/
 /******************************************************************************
 ** Education
 
+
+
+* 
+  * 
+  * 
+
+
 *** MÜLAKAT:
-* bitti
+  * 
+  * 
 ***
 
 ******************************************************************************/
@@ -1014,8 +1122,16 @@ int main()
 /******************************************************************************
 ** Education
 
+
+
+* 
+  * 
+  * 
+
+
 *** MÜLAKAT:
-* Bitti
+  * 
+  * 
 ***
 
 ******************************************************************************/
@@ -1077,8 +1193,16 @@ int main()
 /******************************************************************************
 ** Education
 
+
+
+* 
+  * 
+  * 
+
+
 *** MÜLAKAT:
-* bitti
+  * 
+  * 
 ***
 
 ******************************************************************************/
@@ -1136,8 +1260,16 @@ int main()
 ******************************************************************************
 ** Education
 
+
+
+* 
+  * 
+  * 
+
+
 *** MÜLAKAT:
-* bitti
+  * 
+  * 
 ***
 
 ******************************************************************************/  
