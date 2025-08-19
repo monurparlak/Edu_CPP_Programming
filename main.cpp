@@ -1046,7 +1046,6 @@ int main()
   * 
   * explicit -->> explicit only!!!
   * 
-  * 
   * Örnek:
 class Myclass {
 public:
@@ -1060,8 +1059,6 @@ int main()
     Myclass m;
     m = 23; ///< Illegal
 }
-  *
-  * 
   * 
 
 ******************************************************************************/
@@ -1070,22 +1067,161 @@ int main()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 /******************************************************************************
-** VIDEO 15 - Copy Elision & Dinamik Ömürlü Nesneler & New & Delete
+** VIDEO 15 - Copy Elision & Dynamic Lifetime Objects & New & Delete
 ******************************************************************************/
 /******************************************************************************
 ** Education
 
 
+class Myclass {
+public:
+    Myclass()
+    {
+        std::cout << "default ctor\n";
+    }
+        
+    ~Myclass()
+    {
+    std::cout << "destructor\n";
+    }
+    
+    explicit Myclass(int)
+    {
+        std::cout << "Myclass(int)\n";
+    }
 
-* 
+    Myclass(const Myclass&)
+    {
+        std::cout << "copy ctor\n";
+    }
+ 
+    Myclass (Myclass&&)
+    {
+        std::cout << "move ctor\n";
+    }
+
+    Myclass& operator= (const Myclass&)
+    {
+        std::cout << "copy assignment\n"; return *this;
+    }
+
+    Myclass& operator=(Myclass&&)
+    {
+        std::cout << "move assignment\n";
+        return *this;
+    }
+};
+
+
+* Temporary Materialization
+  *  Bir sınıf nesnesi olmamasına rağmen bir sınıf nesnesini oluşturmayı
+  *     zorunlu kılan senaryolara denir.
   * 
+  * PR-Value'dan XR-Value dönüşüm olur.
+  * 
+  * Örnek:
+foo(Myclass[46]);
+
+Cevap: int parametreli ctor ve dtor çağrılıcak.
+  * 
+  * Bu duruma geçici bir nesnenin bir fonksiyonda çağrılması denir.
   * 
 
 
-*** MÜLAKAT:
+* Return Value Optimization (RVO)
+  * Bir fonksiyon, nesne döndürürken genellikle bir kopyalama işlemi yapar.
+  *     Ancak bu kopyalama maliyetli olabilir.
+  *     RVO, derleyicinin bu kopyalamayı optimize ederek kaldırmasıdır.
+  * Örnek:
+MyClass createObject() {
+    return MyClass(10); // normalde burada ctor + copy ctor çağrılır
+}
+  * Geçici nesne dönerken kopyalamayı engeller
   * 
+
+
+* Named Return Value Optimization (NRVO)
+  * RVO’nun bir isimlendirilmiş nesne versiyonudur.
+  *     Yani döndürülen nesne geçici değil,
+  *     fonksiyon içinde isimlendirilmiş bir değişkense bile
+  *     derleyici kopyalamayı atlayabilir.
+  * Örnek:
+MyClass createObject() {
+    MyClass obj(10);  // isimlendirilmiş nesne
+    return obj;       // NRVO burada devreye girebilir
+}
+  * İsimlendirilmiş nesne dönerken kopyalamayı engeller
   * 
-***
+
+
+* Copy Elision
+  * Temporary object passing (mandatory):
+  *     Bir fonksiyon parametresi sınıf türünden ve
+  *     biz onu geçici nesne ile çağırıyor.
+  * 
+  * Returning a temporary object (mandatory):
+  *     Bir fonksiyon geçici nesne döndürüyor.
+  * 
+  * Returning an object of automatic storage class (optimization):
+  *     Bir fonksiyonda yerel (otomatik ömürlü) bir nesne oluşturup onu döndürüyor.
+  * 
+
+
+* Dinamik Ömrülü Nesneler
+  * Static Storage Class : 
+  *     static anahtar sözcüğü ile tanımlanan değişkenler ve global değişkenler.
+  *     Global nesneler
+  *     Static yerel nesneler
+  *     Sınıfların static veri elemanlar (static data members)
+  * 
+  * Automatic Storage Class : 
+  *     Varsayılan ömür. Bir blok (scope) içinde tanımlanan yerel değişkenler.
+  *     Parameters
+  *     Local variable
+  * 
+  * Dynamic Storage Class :
+  *     Programın çalışması sırasında (runtime) oluşturulup yok edilen nesnelerdir.
+  *     new
+  *     delete 
+  * 
+  * Thread-Local Storage Class : 
+  *     Bir nesnenin depolama süresi (storage duration) thread süresidir.
+  *  
+
+
+* New & Delete operatörü
+  * new operator - new expression
+  * 
+  * new Myclass - new int - new Fighter
+  * 
+  * Run-time esnasında işlem görür. sizeof değeri kadar bellek boyutu allocate eder.
+  * 
+
+
+* Smart Pointer
+  * Normal pointer (T*) gibi davranır ama dinamik bellek ömrünü otomatik yönetir.
+  * 
+  * new/delete kullanımını user yerine yapar -->> memory leak ve dang. ptr riskini azaltır.
+  * 
+  * (a) std::unique_ptr: 
+  *     Tek sahiplik modeli.
+  *     Bir nesnenin yalnızca bir sahibi vardır.
+  *     Kopyalanamaz, ancak taşınabilir (move).
+  * 
+  * (b) std::shared_ptr:
+  *     Paylaşımlı sahiplik.
+  *     Kaç tane shared_ptr aynı nesneyi gösteriyor sayılır (reference count).
+  *     Son shared_ptr silinince nesne yok edilir.
+  * 
+  * (c) std::weak_ptr:
+  *     Zayıf referans -->> shared_ptr’ı saymaz.
+  *     Sahiplik yoktur, sadece gözlemci.
+  *     expired() veya lock() ile kontrol edilir.
+  * 
+  * unique_ptr -->> Tek sahip, hafif, güvenli -->> ilk tercih
+  * shared_ptr -->> Birden fazla sahiplik gerektiğinde
+  * weak_ptr -->> shared_ptr ile oluşan cycle (çöp toplayıcı problemi) çözümü
+  * 
 
 ******************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
@@ -1098,6 +1234,10 @@ int main()
 /******************************************************************************
 ** Education
 
+
+* Smart Pointer
+  * 
+  * 
 
 
 * 
