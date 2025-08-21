@@ -1067,7 +1067,7 @@ int main()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 /******************************************************************************
-** VIDEO 15 - Copy Elision & Dynamic Lifetime Objects & New & Delete
+** VIDEO 15 - Copy Elision & Dinamik Ömürlü Nesneler & New & Delete
 ******************************************************************************/
 /******************************************************************************
 ** Education
@@ -1235,18 +1235,80 @@ MyClass createObject() {
 ** Education
 
 
-* Smart Pointer
+* incomplete type
+  * Fonksiyon bildirimlerinde kullanılabilir.
+  * Örnek:
+
+  class Onur;
+Onur foo(Onur);
+Onur& bar(Onur&);
+Onur* baz(Onur *, int);
+
   * 
+  * Type alias declaration
+  * Örnek:
+
+typedef Onur* OnurPtr;
+typedef Onur& OnurRef;
+using OnurPtr = Onur *;
+
+  * 
+  * Pointer ya da referans değişkenler tanımlanabilir.
   * 
 
 
-* 
+*** MÜLAKAT: Soru/Çözüm
   * 
+
+class Onur {
+public:
+    void foo(Onur *)const
+    {
+        // x = 6;               ///< Legaldir.
+    }
+
+    void func()
+    {
+        // x = 5;               ///< Legaldir.
+
+        // this -> x;           ///< Legaldir.
+    }
+    
+    // Onur(int i) : x(i) {}    ///< Illegaldir.
+
+private:
+    static int x;
+};
+
   * 
+***
 
 
 *** MÜLAKAT:
+  * Her Fighter nesnesi, hayattaki diğer Fighter nesnelerine erişebilecek.
   * 
+  * 
+
+class Fighter {
+public:
+    void call_fighters_for_help()
+    {
+
+    }
+
+};
+
+int main()
+{
+    Fighter f1{"Alpha"};
+    Fighter f2{"Beta"};
+    Fighter f3{"Charlie"};
+    Fighter f4{"Delta"};
+    Fighter f4{"Echo"};
+
+    f2.call_fighters_for_help();
+}
+
   * 
 ***
 
