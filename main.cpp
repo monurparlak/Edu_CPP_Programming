@@ -1235,6 +1235,7 @@ MyClass createObject() {
 ** Education
 
 
+
 * incomplete type
   * Fonksiyon bildirimlerinde kullanılabilir.
   * Örnek:
@@ -1325,16 +1326,179 @@ int main()
 ** Education
 
 
-
-* 
+* Class Static Member Functions
+  * Name ctor:
+  *     Yapıcı fonksiyonlar (constructor) statik olamaz.
+  *     Ancak statik veri üyeleri genelde yapıcı içinde veya sınıf dışında başlatılır.
+  *     En yaygın kullanım: oluşturulan nesne sayısını tutmak.
   * 
+  * Object count:
+  *     Statik üyeler genellikle nesne sayısını takip etmek için kullanılır.
+  *     Statik veri üyesi, sınıfa aittir, nesnelere değil (tek bir kopya vardır).
+  *     Statik fonksiyon, nesne oluşturmadan çağrılabilir.
   * 
-
+  * Statik Veri Üyesi -->> 
+  *     Tüm nesneler tarafından paylaşılan ortak değişken.
+  * Statik Üye Fonksiyonu -->> 
+  *     Sadece statik üyeleri kullanabilir, nesne oluşturmadan çağrılabilir.
+  * Kullanım Alanı -->> 
+  *     Nesne sayısını tutmak, tüm nesnelere ortak sabit/yardımcı fonksiyonları saklamak.
+  * 
 
 *** MÜLAKAT:
+  * Her Fighter nesnesi, hayattaki diğer Fighter nesnelerine erişebilecek.
   * 
+  * 
+
+template <typename InIter, typename T>
+InIter Find(InIter beg, InIter end, const T& val)
+{
+    while(beg != end)
+    {
+        if(*beg == val)
+        {
+            return beg;
+        }
+        ++beg;
+    }
+    return end;
+}
+
+class Fighter {
+public:
+    Fighter()
+    {
+        fvec_.push_back(this);
+    }
+    Fighter(std::string name, int age) : name_(std:move(name)), age_(age)
+    {
+        fvec_.push_back(this);
+    }
+
+    ~Fighter()
+    {
+        std::erase(fvec_, this); ///< C++20
+        //or
+        if (auto iter = std::find(fvec_.being(), fvec_end(), this); 
+            iter !=fvec_.end())
+        {
+            fvec_.erase(iter);
+        }
+        else
+        {
+            std::cerr << "This pointer cannot be found in the container\n" << std::endl;
+        }
+    }
+
+    Fighter(const Fighter&) = delete;               ///< Copy ctor deleted.
+    Fighter& operator=(const Fighter&) = delete;    ///< Copy assignment deleted.
+    void ask_for_help()
+    {
+        std::cout << "I'm" << name_ << "Come on!" << std::endl;
+        for (auto p : fvec_)
+        {
+            if (p != this && p->get_age() > 20)
+            {
+                std::cout << p->get_name() << ' ';
+            }
+        }
+        std::cout <" Run!" << std::endl;
+    }
+    std::string get_name()const
+    {
+        return name_;
+    }
+    int get_age()const
+    {
+        return age_;
+    }
+
+private:
+    std::string name_;
+    inline static std::vector<Fighter*> fvec_; ///< C++17
+    int age { 0 };
+
+};
+
+int main()
+{
+    Fighter f1{"Alpha", 10};
+    Fighter f2{"Beta", 20};
+    Fighter f3{"Charlie", 30};
+    Fighter f4{"Delta", 40};
+    Fighter f4{"Echo", 50};
+    
+    auto p1{new Fighter{"Foxtrot", 60}};
+    auto p2{new Fighter{"Golf", 70}};
+
+    f3.ask_for_help();
+
+    delete p1;
+    delete p2;
+
+    f1.ask_forhelp();
+}
+
   * 
 ***
+
+
+* Delegating ctor
+  * Çoğu zaman sınıfların ctor'ları overload ediliyor.
+  * Anca overload edilen ctor'ların bazen ortak bir kodu oluyor
+  * DRY sorunlara sebep olur. ctor bu fonksiyonlara çağrılıyor.
+  * 
+  * Çoğu zaman sınıfların birden fazla overload edilmiş constructor’ı olur.
+  * Bu constructor’ların içinde ortak bir başlangıç kodu bulunur.
+  * 
+
+
+* Friend Function
+  * Bir sınıfın özel (private) ve korumalı (protected) üyelerine erişim hakkı verir.
+  * Normalde dışarıdan erişilemeyen verilere, özel olarak izin verilir.
+  * Hem global fonksiyon hem de başka bir sınıfın üye fonksiyonu friend olabilir.
+  * 
+  * Örnek:
+
+class A {
+private:
+    int private_value = 42;
+
+    friend class B;
+};
+
+class B {
+public:
+    void yazdir(A a) {
+        cout << "A'nin private value = " << a.private_value << endl;
+    }
+};
+
+  * 
+  * 
+
+* Operator Overloading
+  * Bir fonksiyonu ismi ile çağırmak yerine,
+  *     bir sınıf nesnesini bir operatörün operandı yapmak,
+  *     bir fonksiyona yapılan çağrıya dönüştürüyor.
+  * 
+  * Bu mekanizma ile operatörlerin "arity" sini değiştiremeyiz.
+  * arity -->> operatörün unary ya da binary olmasıdır.
+  * 
+
+
+* Operatörlerde binary ve unary kavramı
+  * a > b -->> Operatör Binar'idir. İki operand aldığı için binary denir.
+  * !x    -->> Operatör Unary'dir.
+  * 
+  * a > b -->> operator>(a,b)
+  * !x    -->> operator!(x)n
+  * 
+  * member operator function
+  * non-static member function
+  * 
+  * bool operator>(Myclass)const;
+  * 
 
 ******************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
@@ -1347,7 +1511,6 @@ int main()
 ******************************************************************************/
 /******************************************************************************
 ** Education
-
 
 
 * 
@@ -1373,7 +1536,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1394,7 +1556,6 @@ int main()
 ******************************************************************************/
 /******************************************************************************
 ** Education
-
 
 
 * 
@@ -1418,7 +1579,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1438,7 +1598,6 @@ int main()
 ** VIDEO 22 - Namespaces (İsim Alanları) & Unnamed Namespace
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1463,7 +1622,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1485,7 +1643,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1505,7 +1662,6 @@ int main()
 ** VIDEO 25 - Virtual (Virtual Dispatch, Runtime Polymorphism)
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1530,7 +1686,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1551,7 +1706,6 @@ int main()
 ** RTTI (Runtime Type Information)
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1575,7 +1729,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1595,7 +1748,6 @@ int main()
 ** VIDEO 29 - String Devam & Initializer_List Minik Giriş & String Devam
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1619,7 +1771,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1639,7 +1790,6 @@ int main()
 ** VIDEO 31 - Exception Handling
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1663,7 +1813,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1683,7 +1832,6 @@ int main()
 ** VIDEO 33 - Noexcept & Generic Programming (Templates) in C++
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1707,7 +1855,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1727,7 +1874,6 @@ int main()
 ** VIDEO 35 - Class Templates (Sınıf Şablonu) & Explicit Specialization (Full Specialization)
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1752,7 +1898,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1774,7 +1919,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1794,7 +1938,6 @@ int main()
 ** VIDEO 38 - Algorithms
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1832,7 +1975,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1854,7 +1996,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1874,7 +2015,6 @@ int main()
 ** VIDEO 42 - Vector Üye Fonksiyonları
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1899,7 +2039,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1919,7 +2058,6 @@ int main()
 ** VIDEO 44 - Iterator Invalidation & Std::Deque (Double Ended Queue) & Sorting Algorithms
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -1944,7 +2082,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1967,7 +2104,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -1987,7 +2123,6 @@ int main()
 ** VIDEO 47 - Set Devam & Map & Unordered Associative Containers & Hash Table (Çırpılama Tablosu)
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -2012,7 +2147,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -2035,7 +2169,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -2055,7 +2188,6 @@ int main()
 ** VIDEO 50 - Std::Tuple (Demet, Bağ) & Std::Invoke & Function Pointers
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -2093,7 +2225,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -2113,7 +2244,6 @@ int main()
 ** VIDEO 53 - Shared_Ptr
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -2152,7 +2282,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -2172,7 +2301,6 @@ int main()
 ** VIDEO 56 - Istringstream & Condition State & Std::Istream_Iterator
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -2195,7 +2323,6 @@ int main()
 ** Stream'de Dosya Devam & Okuma İşleri & Formatsız Okuma/Yazma
 ******************************************************************************
 ** Education
-
 
 
 * 
@@ -2234,7 +2361,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -2257,7 +2383,6 @@ int main()
 ** Education
 
 
-
 * 
   * 
   * 
@@ -2278,7 +2403,6 @@ int main()
 ** Std::Optional Sınıf Şablonu & Std::Variant Sınıf Şablonu
 ******************************************************************************
 ** Education
-
 
 
 * 
