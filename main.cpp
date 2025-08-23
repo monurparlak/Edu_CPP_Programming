@@ -1513,7 +1513,40 @@ public:
 ** Education
 
 
-* 
+*** MÜLAKAT:
+  * Neden hep üye operatörü hem de global operatörü olur?
+  * Sadece üye op. func. var, ne eksik kalırdı? Neyi yapamazdık?
+  * 
+  * Cevap:
+  * Üye operatör fonksiyonları, sınıfın kendi nesnesiyle başlayan işlemleri tanımlar.
+  * Global operatör fonksiyonları ise, 
+  *     sol operand sınıf dışında bir tip olduğunda gerekli olur (örn. int * Vektör).
+  * Eğer sadece üye fonksiyonlar olsaydı, 
+  *     bu esnekliği kaybederdik ve birçok simetrik operatör (a+b ve b+a gibi)
+  *     tam anlamıyla çalışmazdı.
+  * 
+***
+
+* Operatör Overloading
+  * 1. Return types of operator functions
+  *     
+  * 
+  * 2. Test
+  * 
+  * 
+
+
+* Endl
+  * 
+  * 
+
+
+* Karşılaştırma Operatörleri
+  * 
+  * 
+
+
+* !(Equality Operators)
   * 
   * 
 
