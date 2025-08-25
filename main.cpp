@@ -1513,7 +1513,7 @@ public:
 ** Education
 
 
-*** MÜLAKAT:
+*** MÜLAKAT: 
   * Neden hep üye operatörü hem de global operatörü olur?
   * Sadece üye op. func. var, ne eksik kalırdı? Neyi yapamazdık?
   * 
@@ -1521,40 +1521,176 @@ public:
   * Üye operatör fonksiyonları, sınıfın kendi nesnesiyle başlayan işlemleri tanımlar.
   * Global operatör fonksiyonları ise, 
   *     sol operand sınıf dışında bir tip olduğunda gerekli olur (örn. int * Vektör).
+  * 
   * Eğer sadece üye fonksiyonlar olsaydı, 
   *     bu esnekliği kaybederdik ve birçok simetrik operatör (a+b ve b+a gibi)
   *     tam anlamıyla çalışmazdı.
   * 
 ***
 
-* Operatör Overloading
-  * 1. Return types of operator functions
-  *     
-  * 
-  * 2. Test
-  * 
-  * 
 
+* Inserter Functions
+  * STL’de container'lara eleman eklemek için kullanılan yardımcı fonksiyonlardır.
+  * 
+  * Örnekler:
+  * std::inserter(container, iterator)
+  * std::back_inserter(container) → push_back kullanır.
+  * std::front_inserter(container) → push_front kullanır.
+  * 
+  * Normal kopyalama yerine container’a elemanları doğru şekilde eklemeyi sağlar. 
+  *     Özellikle std::copy veya std::transform gibi algoritmalarda çok kullanılır.
+  * 
+  * Örnek:
+
+#include <iostream>
+#include <vector>
+#include <list>
+#include <algorithm>
+#include <iterator>
+using namespace std;
+
+int main() {
+    vector<int> v1 = {1, 2, 3};
+    list<int> l;
+
+    // back_inserter ile sona ekleme
+    copy(v1.begin(), v1.end(), back_inserter(l));
+
+    // front_inserter ile başa ekleme
+    copy(v1.begin(), v1.end(), front_inserter(l));
+
+    for (int x : l) cout << x << " ";  // çıktı: 3 2 1 1 2 3
+}
+
+  * 
+  * Soru: back_inserter ile inserter arasındaki fark nedir?
+  * Cevap: back_inserter, container’ın push_back fonksiyonunu kullanarak hep sona ekler.
+  * Inserter, belirtilen iterator konumundan ekleme yapar.
+  * 
+  * std::copy ile kullanırken container’ın push_back veya push_front
+  *     fonksiyonlarının desteklenmesi gerekir.
+  * std::set gibi sıralı container’larda inserter tercih edilir.
+  * 
 
 * Endl
+  * endl = End Line
+  * \n ile farkı: Satır sonu ekler ve output buffer’ı flush (boşaltır).
+  * Bu yüzden \n genelde daha hızlıdır, endl ise gerçekten ekrana yazmayı garanti eder.
+  * 
+  * Örnek:
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Merhaba\n";     // sadece satır atlar
+    cout << "Dünya" << endl; // satır atlar + buffer flush
+}
+
+  * 
+  * Soru: \n ve std::endl arasındaki fark nedir?
+  * Cevap: \n sadece yeni satır ekler. 
+  *     std::endl ise hem yeni satır ekler hem de buffer’ı temizler.
+  *     Bu yüzden endl daha maliyetlidir.
+  * 
+  * Performans kritik uygulamalarda (IO heavy) \n kullan,
+  *     endl’ı sadece çıktının hemen ekrana yazılması gerektiğinde kullan.
+  * endl aşırı kullanımda programı yavaşlatır.
   * 
   * 
 
 
-* Karşılaştırma Operatörleri
+* Comparison Operators Overloads
+  * C++’ta operator overloading ile ==, !=, <, >, <=, >= 
+  *     operatörlerini sınıflar için tanımlayabilirsin.
+  * Özellikle container’lar (set, map) veya sort algoritmaları 
+  *     nesneleri karşılaştırmak için bu operatörleri çağırır.
   * 
+  * Örnek:
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Person {
+    string name;
+    int age;
+public:
+    Person(string n, int a) : name(n), age(a) {}
+
+    // Eşitlik karşılaştırması
+    bool operator==(const Person& other) const {
+        return (name == other.name && age == other.age);
+    }
+
+    // Küçük mü karşılaştırması (yaşa göre)
+    bool operator<(const Person& other) const {
+        return age < other.age;
+    }
+};
+
+int main() {
+    Person p1("Ali", 25), p2("Ayşe", 30);
+
+    cout << (p1 == p2) << endl; // 0
+    cout << (p1 < p2) << endl;  // 1
+}
+
+  * 
+  * Soru: Eğer == operatörünü overload edersen, != operatörünü de yazmalı mısın?
+  * Cevap: Evet, çünkü C++ otomatik olarak != üretmez.
+  *     Ama C++20 ile operator<=> kullanırsak hepsi otomatik türetilir.
+  * 
+  * operator< genelde std::sort için tanımlanır.
+  * Mantıksal tutarlılık önemli: Eğer a == b doğruysa, a < b ve b < a yanlış olmalı.
+  * C++20’de operator<=> (spaceship operator) kullanarak
+  *     tüm karşılaştırma operatörlerini tek seferde yazabilirsin.
   * 
 
 
 * !(Equality Operators)
+  * Burada kastedilen ! işaretiyle kullanılan eşitlik operatörleri (== ve !=).
+  *     == → Eşitlik kontrolü
+  *     != → Eşitsizlik kontrolü
+  * Bu operatörler genellikle birlikte overload edilir.
   * 
-  * 
+  * Örnek:
 
+#include <iostream>
+using namespace std;
 
-*** MÜLAKAT:
+class Box {
+    int size;
+public:
+    Box(int s) : size(s) {}
+
+    bool operator==(const Box& other) const {
+        return size == other.size;
+    }
+    bool operator!=(const Box& other) const {
+        return !(*this == other); // tekrar kullanıyoruz
+    }
+};
+
+int main() {
+    Box b1(10), b2(20), b3(10);
+
+    cout << (b1 == b2) << endl; // 0
+    cout << (b1 != b2) << endl; // 1
+    cout << (b1 == b3) << endl; // 1
+}
+
   * 
+  * Soru: operator!= tanımlamadan sadece operator== kullanabilir miyiz?
+  * Cevap: Hayır, ikisini ayrı tanımlamak gerekir (C++20’ye kadar).
+  *     Ama != tanımını !(==) şeklinde implement etmek yaygın pratiktir.
   * 
-***
+  * Kod tekrarını önlemek için !=’i !(==) üzerinden tanımla.
+  * Eğer == ve != mantıksal olarak çelişirse,
+  *     (ör. biri true, diğeri de true dönerse) çok tehlikeli bug’lar çıkar.
+  * unordered_map ve unordered_set gibi container’lar 
+  *     hem == hem de hash fonksiyonuna ihtiyaç duyar.
+  * 
 
 ******************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
