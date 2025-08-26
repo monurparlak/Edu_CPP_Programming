@@ -1705,13 +1705,141 @@ int main() {
 ** Education
 
 
-* 
+* Reference qualifiers
+  * increment - decrement
+  * 
+  * ++x prefix increment
+  * x++ postfix increment
+  * 
+  * --x prefix decrement
+  * x-- postfix decrement
+  * 
+  * Örnek:
+
+class Counter {
+public:
+    Counter& operator++();      prefix
+    Counter operator++(int);    postfix
+
+    Counter& operator--();      prefix
+    Counter operator--(int);    postfix
+
+};
+
+  * 
+  * 
+x = y   ///< R-Value expression
+x += y  ///< L-Value expression
+
+struct S {
+    void foo() & { std::cout << "lvalue nesnesi\n"; }
+    void foo() && { std::cout << "rvalue nesnesi\n"; }
+};
+
+S s;
+s.foo();       // lvalue -> "lvalue nesnesi"
+S{}.foo();     // rvalue -> "rvalue nesnesi"
+
+  * 
+  * Atama operatörünün ürettiği değer nesneye atanan değerdir.
+  * Örnek:
+
+std::cout << (x = y = 10) << std::endl; // 10 yazdırır
+std::cout << x << " " << y << std::endl; // 10 10
+
+  * 
+  * *ptr++ -->> Dizinin ilk elemanına erişilir.
+  * *++ptr -->> Dizinin ikinci elemanına erişilir.
+  * 
+
+int x{123};
+
++x  ///< Value category -->> PR-Value
+    ///< Türü nedir     -->> int
+    ///< Yan etkisi     -->> Yok
+
+  * 
+  * 
+
+
+* Dereferencing / Indirection (*) Operatörü
+  * Operatörü pointer dereference etmek için kullanılır.
+  * Operator overload ile sınıf içinden nesneye ulaşmak için de tanımlanabilir.
+  * 
+  * Örnek:
+
+class PtrWrapper {
+    int value;
+public:
+    PtrWrapper(int v) : value(v) {}
+
+    int& operator*() {   // Dereference overload
+        return value;
+    }
+};
+
+int main() {
+    PtrWrapper pw(42);
+    std::cout << *pw << std::endl; // 42
+}
+
+  * 
+  * 
+
+
+* Arrow / Member Selection (->) Operatörü
+  * -> operatörü pointer üzerinden nesne üyesine erişmek için kullanılır.
+  * Overload edilerek akıllı pointer benzeri davranış sağlanabilir.
+  * 
+  * Örnek:
+
+struct Obj {
+    void hello() { std::cout << "Merhaba\n"; }
+};
+
+class SmartPtr {
+    Obj* p;
+public:
+    SmartPtr(Obj* ptr) : p(ptr) {}
+
+    Obj* operator->() {   // Arrow overload
+        return p;
+    }
+};
+
+int main() {
+    Obj o;
+    SmartPtr sp(&o);
+    sp->hello(); // "Merhaba"
+}
+
   * 
   * 
 
 
 *** MÜLAKAT:
   * 
+
+void bar(int&)
+{
+    std::cout << "1";
+}
+
+void bar(int&&)
+{
+    std::cout << "2";
+}
+
+void foo(int&& x)
+{
+    bar(x);
+}
+
+int main()
+{
+    //foo(5); ///< Syntax error yok. Cevap: 1'dir.
+}
+
   * 
 ***
 
