@@ -1855,13 +1855,166 @@ int main()
 ** Education
 
 
-* 
+* Introduction to Template
+  * Template (şablon), C++’ta türden bağımsız programlama yapılmasını sağlar.
+  * Aynı işlevi veya sınıfı farklı veri tipleri için tekrar tekrar yazmak yerine,
+  *     template yapısı kullanılarak tek bir tanım üzerinden farklı türlerle çalışılabilir.
+  * Hem function template hem de class template kullanılabilir.
+  * 
+  * Örnek:
+
+// Function Template
+template <typename T>
+T add(T a, T b) {
+    return a + b;
+}
+
+// Class Template
+template <typename T>
+class Box {
+    T value;
+public:
+    Box(T v) : value(v) {}
+    T getValue() { return value; }
+};
+
+int main() {
+    std::cout << add<int>(3, 4) << std::endl;      // 7
+    std::cout << add<double>(2.5, 4.2) << std::endl; // 6.7
+
+    Box<std::string> b("Hello Templates");
+    std::cout << b.getValue() << std::endl;        // Hello Templates
+}
+
+  * 
+  * 
+
+
+* Function Call Overload
+  * operator() fonksiyon çağrı operatörüdür.
+  * Bu operatör overload edilerek sınıf nesneleri fonksiyon gibi
+  *     çağrılabilir hale getirilebilir.
+  * Özellikle functor (function object) tanımlamak için kullanılır.
+  * 
+  * Örnek:
+
+class Multiplier {
+private:
+    int factor;
+
+public:
+    Multiplier(int f) : factor(f) {}
+
+    int operator()(int x) {   // Function call overload
+        return x * factor;
+    }
+};
+
+int main() {
+    Multiplier times3(3);
+    std::cout << times3(10) << std::endl; // 30
+
+    Multiplier times5(5);
+    std::cout << times5(4) << std::endl;  // 20
+}
+
+  * 
+  * 
+
+
+* Type Conversion Operator
+  * User Define Conversion (UDC)
+  *     Conversion ctor : Sınıfın int türünden ctor varsa,
+  *         o int türünden ya da int'e dönüştürülebilecek bir değerin,
+  *         sınıf türüne dönüştürmesini sağlıyor.
+  * 
+  *     operator T : 
+  * 
+  * Standard Conversion -->> User define conversion
+  * User define conversion -->> Standard Conversion
+  * 
+  * Örnek:
+
+class A {
+
+};
+
+class B {
+public:
+    B();
+    B(A);
+
+};
+
+class C {
+public:
+    C();
+    C(B);
+
+};
+
+int main()
+{
+    C cx;
+    //B bx;
+    A ax;
+
+    cx = ax;    ///< Invalid.
+    //bx = ax;  ///< Valid.
+}
+
   * 
   * 
 
 
 *** MÜLAKAT:
+  * Soru çözümünü yapınız.
+
+class Myclass {
+public:
+    operator bool()const
+    {
+        return true;
+    }
+
+};
+
+int main()
+{
+    Myclass m1, m2;
+    auto x = m1 + m2;   ///< auto x = m1.operator bool() + m2.operator bool();
+
+    std::cout << "x = " << x << '\n;
+}
+
+  * Cevap : 2'dir. x'in türü int'tir.
+***
+
+
+*** MÜLAKAT:
+  * Soru çözümünü yapınız.
+
+class Myclass {
+public:
+    operator bool()const
+    {
+        return true;
+    }
+
+};
+
+int main()
+{
+    double x{};
+    
+    Myclass m;
+
+    x = m;  ///< Geçerlidir.
+}
+
   * 
+  *  Cevap : 2'dir. x'in türü int'tir.
+  * Sınıfların operator bool func'ları her zaman explicit olarak bildirilir.
   * 
 ***
 
