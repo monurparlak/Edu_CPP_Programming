@@ -2029,15 +2029,116 @@ int main()
 ** Education
 
 
-* 
+* Extern C notification
+  * Derleyici, fonksiyon isimlerini name mangling (isim bozma) ile farklı şekilde saklar 
+  *     (aynı isimli fonksiyonların overload edilmesini sağlamak için).
+  * C dilinde ise name mangling yoktur.
+  * Eğer bir C kütüphanesini C++ içinde kullanmak istersek,
+  *     fonksiyon bildirimlerini extern "C" ile işaretlememiz gerekir.
+  *     Böylece C++ derleyicisine “bu fonksiyon C stilinde tanımlıdır,
+  *     isim bozma yapma” demiş oluruz.
   * 
+  * Örnek:
+
+#include <stdio.h>
+void c_function() {
+    printf("Hello from C function!\n");
+}
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void c_function();
+
+#ifdef __cplusplus
+}
+#endif
+
+#include <iostream>
+#include "mathlib.h"
+
+int main() {
+    c_function(); // C fonksiyonunu C++ içinden çağırıyoruz
+    return 0;
+}
+
+  * 
+  * extern "C" sadece bağlayıcı (linkage) bilgisini değiştirir, kodun derlenmesini etkilemez.
+  * Genellikle C header dosyalarını C++ projelerine dahil ederken kullanılır.
   * 
 
 
-*** MÜLAKAT:
+* Composition (Containment)
+  * Composition (Containment): Bir sınıfın başka bir sınıfı üyeleri içinde barındırmasıdır.
+  *     Yani “has-a” (sahiplik) ilişkisini ifade eder.
+  * Örnek: Bir Car sınıfının içinde Engine bulunur. 
+  *     Bu durumda araba motoru içerir, bu inheritance (kalıtım) değildir.
   * 
+  * Örnek:
+
+#include <iostream>
+class Engine {
+public:
+    void start() { std::cout << "Engine started\n"; }
+};
+
+class Car {
+    Engine engine; // Composition
+public:
+    void drive() {
+        engine.start();
+        std::cout << "Car is moving\n";
+    }
+};
+
+int main() {
+    Car car;
+    car.drive();
+}
+
+Inheritance (is-a): Car bir Vehicle’dır.
+
+Composition (has-a): Car bir Engine içerir.
+
   * 
-***
+  *   * “Composition ve Inheritance arasında tercih yaparken neye dikkat edersin?”
+  * Cevap : “Genellikle ‘is-a’ ilişkisi varsa inheritance,
+  *     ‘has-a’ ilişkisi varsa composition tercih edilir.
+  *     Ayrıca composition daha gevşek bağlılık sağlar,
+  *     inheritance daha sıkı bağlılık yaratır.”
+  * 
+
+
+* Reference Qualifiers
+  * C++11 ile gelen & (lvalue reference) ve && (rvalue reference) qualifier’ları,
+  *     üye fonksiyonların hangi tür nesneler üzerinde çağrılabileceğini belirler.
+  * Amaç : Lvalue ve rvalue nesneler için farklı davranış tanımlamaktır.
+  * 
+  * Örnek:
+
+#include <iostream>
+class Data {
+public:
+    void show() & {  // sadece lvalue nesnelerde çağrılır
+        std::cout << "Called on lvalue\n";
+    }
+    void show() && { // sadece rvalue nesnelerde çağrılır
+        std::cout << "Called on rvalue\n";
+    }
+};
+
+int main() {
+    Data d;
+    d.show();         // lvalue -->> "Called on lvalue"
+    Data().show();    // rvalue -->> "Called on rvalue"
+}
+
+  * 
+  * Lvalue qualifier (&) -->> sadece isimli, bellekte var olan nesnelerde çalışır.
+  * Rvalue qualifier (&&) -->> geçici nesneler üzerinde çalışır.
+  * Modern C++’ta move semantics ve perfect forwarding ile birlikte önem kazanmıştır.
+  * 
 
 ******************************************************************************/  
 ///////////////////////////////////////////////////////////////////////////////
