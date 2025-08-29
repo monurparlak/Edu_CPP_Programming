@@ -2151,13 +2151,111 @@ int main() {
 ** Education
 
 
-* 
+* Namespace
+  * Farklı dosya ve sınıflardan gelen global isimlerin birbirine karışmamasını sağlar.
+  * Namespace, ad çakışmalarını önlemek ve kodun düzenli olmasını sağlamak için kullanılan bir yapıdır.
+  * Büyük projelerde farklı kütüphanelerden gelen fonksiyon veya sınıf isimlerinin çakışmasını önler.
+  * namespace anahtar kelimesi ile tanımlanır.
+  * 
+  * Örnek:
+
+#include <iostream>
+
+// namespace tanımı
+namespace Matematik {
+    int topla(int a, int b) {
+        return a + b;
+    }
+    int carp(int a, int b) {
+        return a * b;
+    }
+}
+
+int main() {
+    std::cout << "Toplam: " << Matematik::topla(5, 3) << std::endl; // 8
+    std::cout << "Çarpım: " << Matematik::carp(5, 3) << std::endl;   // 15
+    return 0;
+}
+
+  * 
+  * Namespace içindeki öğelere erişim için :: (scope resolution operator) kullanılır.
+  * Namespace’ler iç içe tanımlanabilir.
+  * 
+
+
+* Using Declaration (using)
+  * using keyword’ü, uzun namespace isimlerini sürekli yazmamak için kullanılır.
+  * Bir namespace’i tamamen veya sadece belirli bir öğeyi kullanılabilir hale getirir.
+  * 
+  * Örnek:
+
+#include <iostream>
+
+namespace Matematik {
+    int topla(int a, int b) { return a + b; }
+    int carp(int a, int b) { return a * b; }
+}
+
+using Matematik::topla; // Sadece topla fonksiyonunu erişilebilir yapar
+
+int main() {
+    std::cout << "Toplam: " << topla(4, 6) << std::endl; // Matematik::topla yerine sadece topla
+    // std::cout << carp(4, 6); // HATA: carp fonksiyonu görünür değil
+    return 0;
+}
+
   * 
   * 
 
+
+* Unnamed namespace
+  * Static değişken ve fonksiyonların yaptığı işi modern C++’ta yapar:
+  *     Sadece tanımlandığı dosyada görünür (file-scope visibility).
+  * Amaç: Global namespace’e sızmayı önlemek, dosya içi gizlilik sağlamak.
+  * 
+  * Örnek:
+
+#include <iostream>
+
+namespace {
+    int gizliSayi = 42;
+
+    void gizliFonksiyon() {
+        std::cout << "Bu fonksiyon sadece bu dosyada görünür!" << std::endl;
+    }
+}
+
+int main() {
+    std::cout << "Gizli Sayı: " << gizliSayi << std::endl;
+    gizliFonksiyon();
+    return 0;
+}
+
+  * 
+  * Unnamed namespace’teki öğeler sadece tanımlandığı dosyada erişilebilir.
+  * Static keyword’ü ile benzer işlev görür, ancak unnamed namespace modern C++ yaklaşımıdır.
+  * 
 
 *** MÜLAKAT:
+  * Soru: Namespace neden kullanılır?
+  * Cevap: Farklı kütüphanelerde veya modüllerde aynı isimdeki
+  *     fonksiyon/sınıf/degiskenlerin çakışmasını önlemek ve kodu organize etmek
   * 
+  * Soru: using namespace ile using arasındaki fark nedir?
+  * Cevap:
+  * using namespace X; -->> namespace içindeki tüm öğeleri görünür yapar.
+  * using X::Y; -->> sadece Y öğesini görünür yapar, isim çakışmasını önler.
+  * 
+  * Soru: Unnamed namespace ne zaman kullanılır?
+  * Cevap: Dosya düzeyinde öğeleri gizlemek ve global namespace kirliliğini önlemek.
+  *     Static yerine modern C++’ta önerilen yöntemdir.
+  * 
+  * using namespace std; kullanımını sorabilirler -->> küçük projelerde kabul edilebilir, 
+  *     Büyük projelerde önerilmez.
+  * Namespace iç içe tanımlanabilir ve isim çakışmaları nasıl çözülür sorulabilir.
+  * Unnamed namespace’in ve static keyword’ünün farkını bilmek önemlidir.
+  * Kod örneği üzerinden namespace ve using kullanımını sorabilirler;
+  *     Basit ama etkili örnekler hazırlayın.
   * 
 ***
 
