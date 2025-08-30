@@ -2271,13 +2271,156 @@ int main() {
 ** Education
 
 
-* 
+* Nested Types
+  * Bir sınıfın içinde tanımlanan başka bir sınıf, struct veya enum’dur.
+  * Amaç: Bir türün sadece kapsayıcı sınıf bağlamında anlamlı olduğunu göstermek
+  *     ve kodu organize etmek.
   * 
+  * Örnek:
+
+#include <iostream>
+
+class OuterClass {
+public:
+    class InnerClass {  // nested type
+    public:
+        void showMessage() { std::cout << "Hello, I am the inner class!" << std::endl; }
+    };
+
+    void run() {
+        InnerClass inner;  
+        inner.showMessage();
+    }
+};
+
+int main() {
+    OuterClass::InnerClass inner2; // Access from outside
+    inner2.showMessage();
+
+    OuterClass outer;
+    outer.run();
+    return 0;
+}
+
+  * 
+  * Nested type dışarıdan DışSınıf::İçSınıf ile erişilir.
+  * Sadece kapsayıcı sınıf bağlamında anlamlı türleri saklamak için idealdir.
   * 
 
+
+* Pimpl Idiom
+  * Bir sınıfın uygulama detaylarını gizlemek için kullanılır
+  *     (Encapsulation + Compile-time optimization).
+  * Sınıfın iç detayları başlık dosyasından gizlenir,
+  *     böylece derleme süreleri kısalır ve bağımlılık azalır.
+  * 
+  * Örnek:
+
+#include <iostream>
+#include <memory>
+
+// Interface class
+class Hidden {
+public:
+    Hidden();
+    ~Hidden();
+    void showMessage();
+private:
+    class Impl;                 // Pimpl: hidden implementation
+    std::unique_ptr<Impl> pImpl; 
+};
+
+// Implementation
+class Hidden::Impl {
+public:
+    void showMessage() { std::cout << "Hello from Pimpl!" << std::endl; }
+};
+
+Hidden::Hidden() : pImpl(std::make_unique<Impl>()) {}
+Hidden::~Hidden() = default;
+
+void Hidden::showMessage() { pImpl->showMessage(); }
+
+int main() {
+    Hidden h;
+    h.showMessage();
+    return 0;
+}
+
+  * 
+  * Header dosyasındaki implementasyon detayları gizlenir -->> bağımlılık azalır.
+  * Hafıza yönetimi için unique_ptr veya shared_ptr kullanmak yaygındır.
+  * Modern C++’ta std::unique_ptr ile birlikte tercih edilir.
+  * 
+
+
+* Inheritance
+  * Inheritance, bir sınıfın başka bir sınıftan özellikleri ve 
+  *     Fonksiyonları devralmasını sağlar.
+  * C++’ta 3 tür kalıtım vardır: public, protected, private.
+  * 
+  * Örnek:
+
+#include <iostream>
+
+class Animal {
+public:
+    void makeSound() { std::cout << "Animal sound" << std::endl; }
+};
+
+class Cat : public Animal { // public inheritance
+public:
+    void meow() { std::cout << "Meow!" << std::endl; }
+};
+
+int main() {
+    Cat c;
+    c.makeSound();  // Calls Animal::makeSound
+    c.meow();       // Calls Cat::meow
+    return 0;
+}
+
+///< With virtual function and destructor:
+class Animal {
+public:
+    virtual void makeSound() { std::cout << "Animal sound" << std::endl; }
+    virtual ~Animal() = default;
+};
+
+  * 
+  * public inheritance -->> base class’ın public üyeleri derived class’ta public kalır.
+  * protected inheritance -->> base public/protected üyeler derived’da protected olur.
+  * private inheritance -->> base public/protected üyeler derived’da private olur.
+  * Polymorphism için virtual functions ve virtual destructor önemli.
+  * 
 
 *** MÜLAKAT:
   * 
+  * Soru: Nested type ne zaman kullanılır?
+  * Cevap: Bir tür yalnızca kapsayıcı sınıf bağlamında anlamlıysa veya
+  *     kapsayıcı sınıfın bir parçası olarak gruplanması gerekiyorsa.
+  * 
+  * Soru: Pimpl idiom ne işe yarar?
+  * Cevap: Implementasyon detaylarını header’dan gizleyerek bağımlılıkları azaltır
+  *     ve derleme sürelerini kısaltır.
+  * 
+  * Soru: Public, protected ve private inheritance arasındaki fark nedir?
+  * Cevap: Base class üyelerinin derived class’ta erişim seviyesini değiştirir.
+  * 
+  * Public -->> public kalır
+  * Protected -->> protected olur
+  * Private -->> private olur
+  * 
+  * Soru: Virtual destructor neden önemlidir?
+  * Cevap: Derived class nesnesi base pointer ile silindiğinde,
+  *     derived destructor çağrılmasını sağlar ve bellek sızıntısını önler.
+  * 
+  * 
+  * Nested type kullanımının avantajlarını ve sınırlamalarını anlatabilmek.
+  * Pimpl idiom ile #include bağımlılığını azaltmayı ve,
+  *     modern C++’ta pointer yönetimini bilmek.
+  * Kalıtım türleri ve polymorphism sorulabilir.
+  * Virtual destructor ve override keyword’ünü bilmek, örnekle göstermek.
   * 
 ***
 
