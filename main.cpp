@@ -2435,15 +2435,114 @@ public:
 ** Education
 
 
-* 
+*** MÜLAKAT:
+  * Inheritance
+  * 
+  * Taban ve türetilmiş sınıfta bildirilen aynı isimli fonk'lar overload değildir.
+  * 
+***
+
+* Inheritance and Name look-up
+  * 
+  * Örnek:
+
+class Base {
+public:
+    void foo();
+
+};
+
+class Der : public Base {
+public:
+    void foo(int);
+
+};
+
+int main()
+{
+    Der myder;
+
+    //myder.foo();      ///< Legal mi? -->> Illegaldir. 
+                        ///<                Param olan değişkene arg. gönderilmedi
+
+    //myder.foo(12);    ///< myder nesnesiyle taban fonk. foo olan fonk. çağrı yapılabilir mi?
+    //myder.Base::foo();///< Evet!
+
+    //myder.foo(3.4);   ///< foo fonk'ları double ve int param almıştır.
+                        ///< Bu durumda func. overloading durumu değildir.
+    
+    // İsim nitelenmeden kullanıldığı için,
+    // Blokta aranır -->> class X : public Base scope'ta -->> Base scope'ta -->> namespace
+}
+
   * 
   * 
 
 
 *** MÜLAKAT:
+  * Türemiş sınıfın bir üye fonksiyonu içinde bir isim nitelenmeden kullanılırsa,
   * 
+  * İsim önce blokta
+  *     sonra kapsayan blokta
+  *         sonra türemiş sınıf tanımında
+  *             sonra taban sınıf tanımında
+  *                 sonra namespace'de aranır.
   * 
 ***
+
+
+* Run-Time Polymorphism
+  * Car sınıfı kalıtım olarak elde edildi.
+  * Özetle, her "Audi" ve "Volvo" bir "Car"dır.
+  * 
+  * Örnek:
+
+class Car {
+public:
+    virtual void start()        ///< virtual nesnesi ile yazınca Car::start olmaz.
+    {
+        std::cout << "Car::start\n";
+    }
+};
+
+class Audi : public Car {
+public:
+    void start()
+    {
+        std::cout << "Audi::start\n";
+    }
+
+};
+
+class Volvo : public Car {
+public:
+    void start()
+    {
+        std::cout << "Volvo::start\n";
+    }
+
+};
+
+void car_game(Car* ptr)
+{
+    ptr->start();
+}
+
+int main()
+{
+    Audio a;
+    Volvo v;
+
+    car_game(&a);
+    car_game(&v);
+}
+
+  * 
+  * static/early binding : Func overloading. 
+  *                        10 func olsa hangisi çağrıldığı compiler-time'da anlaşılır.
+  * 
+  * dynamic/late binding : Run-time'da anlaşılır. RND örnek verilebilir.
+  * 
 
 ******************************************************************************/  
 ///////////////////////////////////////////////////////////////////////////////
