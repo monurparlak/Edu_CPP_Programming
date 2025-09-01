@@ -2555,15 +2555,213 @@ int main()
 ** Education
 
 
-* 
-  * 
+* Virtual Function
+  * Bir base (taban) class içinde virtual keyword ile tanımlanmış fonksiyondur.
+  * Amaç: runtime polymorphism (çalışma zamanı çok biçimlilik) sağlamaktır.
+  * Yani, bir base class pointer/reference ile işaret edilen derived class
+  *     nesnesinin override edilmiş metodunu çalıştırabilmektir.
   * 
 
 
+* Virtual Dispatch (V-Table Mekanizması)
+  * C++ derleyicileri, her virtual fonksiyon için bir vtable
+  *     (virtual function table) oluşturur.
+  * Her nesne, vtable’a işaret eden bir pointer (vptr) taşır.
+  * Çağrı yapılınca hangi fonksiyonun çalışacağı çalışma zamanında (runtime) belirlenir.
+  * Bu yüzden buna dynamic dispatch denir.
+  * 
+
+
+* Kullanım Senaryosu
+  * Polymorphism: Base class arayüzü kullanarak farklı türevlerin davranışını çalıştırmak.
+  * 
+  * Design Patterns: Strategy, State, Visitor gibi desenlerin çoğu
+  *     virtual dispatch üzerine kuruludur.
+  * 
+  * OOP Hierarchies: Ortak arayüz + özelleşmiş davranış.
+  * 
+  * Örnek:
+
+#include <iostream>
+#include <memory>
+using namespace std;
+
+class Animal {
+public:
+    virtual void speak() { // Virtual function
+        cout << "Animal makes a sound." << endl;
+    }
+    virtual ~Animal() { // Her zaman virtual destructor kullan
+        cout << "Animal destroyed" << endl;
+    }
+};
+
+class Dog : public Animal {
+public:
+    void speak() override { // Override edilmesi önerilir
+        cout << "Woof! Woof!" << endl;
+    }
+    ~Dog() {
+        cout << "Dog destroyed" << endl;
+    }
+};
+
+class Cat : public Animal {
+public:
+    void speak() override {
+        cout << "Meow!" << endl;
+    }
+    ~Cat() {
+        cout << "Cat destroyed" << endl;
+    }
+};
+
+int main() {
+    // Base pointer -> Derived object
+    Animal* a1 = new Dog();
+    Animal* a2 = new Cat();
+
+    a1->speak(); // Runtime’da Dog::speak() çağrılır
+    a2->speak(); // Runtime’da Cat::speak() çağrılır
+
+    delete a1; // Virtual destructor sayesinde Dog + Animal yok edilir
+    delete a2;
+
+    // Modern yaklaşım (smart pointer)
+    unique_ptr<Animal> a3 = make_unique<Dog>();
+    a3->speak();
+
+    return 0;
+}
+
+Cevap:
+    Woof! Woof!
+    Meow!
+    Dog destroyed
+    Animal destroyed
+    Cat destroyed
+    Animal destroyed
+    Woof! Woof!
+    Dog destroyed
+    Animal destroyed
+
+  * 
+  * 
+
+  
 *** MÜLAKAT:
+  * C++’ta neden destructor’lar genellikle virtual yapılır?
+  * 
+  * Eğer bir base class pointer ile derived class nesnesi oluşturup delete edersek,
+  *     base class destructor virtual değilse, sadece base destructor çağrılır,
+  *     derived destructor çağrılmaz -->> memory leak ve kaynak sızıntısı olur.
+  * 
+
+class Base {
+public:
+    ~Base() { cout << "Base destroyed"; }
+};
+
+class Derived : public Base {
+public:
+    ~Derived() { cout << "Derived destroyed"; }
+};
+
+int main() {
+    Base* b = new Derived();
+    delete b; // Derived destructor çağrılmaz -->> tehlikeli!
+}
+
   * 
   * 
 ***
+
+
+*** MÜLAKAT:
+  * Virtual function ile function overloading arasındaki fark nedir?
+  * Virtual function = runtime polymorphism, overload = compile-time polymorphism.
+  * 
+  * Pure virtual function nedir?
+  * virtual void foo() = 0; -->> abstract class oluşturur.
+  * 
+  * Virtual table (vtable) nedir, nasıl çalışır?
+  * Derleyici tarafından oluşturulan tablo;
+  *     hangi fonksiyonun çalıştırılacağını runtime’da çözer.
+  * 
+***
+
+
+*** MÜLAKAT:
+  * Virtual destructor kullan: Base class’ların destructor’unu her zaman virtual yap.
+  * 
+  * override keyword: Derived class’ta virtual fonksiyonları override ederken override kullan -->> yazım hatalarını yakalar.
+  * 
+  * Base class’ta gereksiz virtual yapma: Sadece polymorphic davranış gerekiyorsa virtual ekle. 
+  *     Gereksiz virtual -->> ek maliyet (vtable + indirection).
+  * 
+  * Final keyword: Eğer derived class’ta bir fonksiyonun daha override edilmesini istemiyorsan final kullan:
+  * 
+
+void speak() override final;
+
+  * 
+  * Interface için pure virtual: Eğer sınıf sadece arayüz ise -->> =0 ile pure virtual yap.
+  * 
+  * Smart pointer tercih et: Manual new/delete yerine unique_ptr veya shared_ptr kullan.
+  * 
+  * Object slicing’e dikkat et: Base class by-value kopyalanırsa derived özellikleri kaybolur -->> her zaman reference veya pointer kullan.
+  * 
+***
+
+
+* Dynamic Binding / Late Binding
+  * Bir taban sınıfın fonksiyonları
+  * 
+  * 1. Türemiş sınıflara hem bir interface hem de bir implementasyon veren fonk'lar
+  * Airplane
+  *     takeoff
+  * 
+  * 2. Türemiş sınıflara hem bir interface hem de bir default implementasyon veren fonk'lar
+  *     fly
+  * 
+  * 3. Türemiş sınıflara yalnızca bir interface veren implementasyon vermeyen fonk'lar
+  *     land
+  * 
+  * override (function overriding)
+  * 
+  * Bir sınıfın en az 2. kategoride bir fonksiyonu varsa,
+  *     Böyle sınıflara polymorphic (çok biçimli)
+  * 
+  * Bir sınıfın en az 3. kategoride en az bir fonksiyonu varsa,
+  *     Böyle sınıflara abstract class (soyut sınıf)
+  * 
+  * Örnek:
+
+class Airplane {
+public:
+    void takeoff();
+    virtual void fly();         ///< Virtual Function - Sanal fonksiyon
+    virtual void land() = 0;    ///< Pure virtual function - Saf sanal fonksiyon
+
+};
+
+class Airbus : public Airplane { };
+
+int main()
+{
+    Airplane a;
+}
+
+  * 
+  * 
+ 
+
+* Virtual dispatch (Sanal gönderim)
+  * Eğer bir fonksiyon çağırısı
+  * taban sınıf türünden bir nesne ile değil
+  * taban sınıf türünden bir pointer değişken ya da
+  * taban sınıf türünden bir referans değişken ile yapılmasıdır.
+  * 
 
 ******************************************************************************/  
 ///////////////////////////////////////////////////////////////////////////////
