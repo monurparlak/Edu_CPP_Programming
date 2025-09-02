@@ -2923,13 +2923,236 @@ int main()
 ** Education
 
 
-* 
+* noexcept
+  * noexcept, C++11 ile gelen bir keyword’dür.
+  * Fonksiyonun exception throw olmadığını garanti eder.
+  * Derleyiciye ve optimize ediciye bilgi verir,
+  *     exception güvenli kod yazmayı kolaylaştırır.
+  * Örnek:
+  * 
+
+void f() noexcept;          // exception non-throw
+void g() noexcept(true);    // f ile aynı
+void h() noexcept(false);   // exception throw
+
+  * 
+  * 
+  * Performans optimizasyonu: std::vector gibi container’lar
+  *     noexcept constructor/destructor ile daha hızlı çalışır.
+  * 
+  * Exception safety: Exception garantisi vermek istediğimiz fonksiyonlarda.
+  * 
+  * Move semantics: Move constructor’larda noexcept kullanılması önerilir.
+  * 
+  * no-throw garantisi vermeme durumunda hatalı argümanlar vardır.
+  * Zorlayıcı sebep yoksa no-throw garantisi vermelidir.
+  *     move ctor
+  *     swap
+  *     memory deallocation
+  * 
+
+
+* Generic Programming & Templates
+  * Template parametrs -->> <>
+  *     Type parameter -->> Bu isim bir türe karşılık geliyor.
+  *     Non-type parameter -->> Bu isim bir sabite karşılık geliyor.
+  *     template parameter
+  * 
+
+template <class T>
+template <typename T>
+
+template <typename T, typename U>   ///< Birden fazla yazılma durumu
+template <typename T> <<-->> <typename> ///< Aynı ifadedir.
+
+  * 
+  * 
+  * Örnek:
+  * 
+
+template <std::size_t n>
+class Bitset {
+};
+int main() { Bitset<32> } ///< 32 bitlik olduğunubelirtir.
+
+  * 
+  * 
+  * Örnek:
+  * 
+
+template <typename T, int N>
+void func(T(&)[N])
+{
+
+}
+
+  * 
+  * 
+  * Örnek:
+  * 
+
+template <typename T, T x> ///< T: type parameter.
+                           ///< x: non-type parameter.
+class Myclass {
+};
+
+  * 
+  * 
+  * Örnek:
+  * 
+
+template <typename T, int N>
+void func(T x)
+{
+     
+}
+
+  * 
+  * 
+
+* Generic Programming & Templates
+  * Generic Programming, veri tipinden bağımsız algoritma yazma yaklaşımıdır.
+  * Templates, C++’ta generic programlamayı sağlayan yapıdır.
+  * 
+  * Örnek:
+  * 
+
+///< Function Template
+template <typename T>
+T add(T a, T b) {
+    return a + b;
+}
+
+///< Class Template
+template <typename T>
+class Box {
+private:
+    T value;
+public:
+    Box(T v) : value(v) {}
+    T get() { return value; }
+};
+
+  * 
+  * 
+  * Compile-time’da tür belirlenir -->> type safety sağlar.
+  * Kod tekrarı azalır.
+  * typename veya class keyword’ü template parametresi için kullanılabilir.
+  * 
+  * 
+  * Template specialization: Belirli tipler için özelleştirme.
+  * 
+  * Concepts (C++20): Type constraints, compile-time kontrol.
+  * 
+  * Variadic templates: İstenilen sayıda template parametresi.
+  * 
+  * 
+
+
+* Örnekler:
+  * noexcept
+  * 
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void mayThrow() { throw runtime_error("Error"); }
+void noThrow() noexcept { cout << "No exception!\n"; }
+
+int main() {
+    try {
+        noThrow();   // güvenli, exception yok
+        mayThrow();  // exception throw
+    } catch (const exception& e) {
+        cout << "Caught: " << e.what() << endl;
+    }
+    return 0;
+}
+
+  * 
+  * 
+  * Function Template
+  * 
+
+  #include <iostream>
+using namespace std;
+
+template <typename T>
+T maxValue(T a, T b) {
+    return (a > b) ? a : b;
+}
+
+int main() {
+    cout << maxValue(10, 20) << endl;       // int
+    cout << maxValue(3.5, 2.7) << endl;     // double
+    return 0;
+}
+
+  * 
+  * 
+  * Class Template
+  * 
+
+#include <iostream>
+using namespace std;
+
+template <typename T>
+class Stack {
+private:
+    T data[10];
+    int top = -1;
+public:
+    void push(T val) { data[++top] = val; }
+    T pop() { return data[top--]; }
+};
+
+int main() {
+    Stack<int> s1;
+    s1.push(10); s1.push(20);
+    cout << s1.pop() << endl;
+
+    Stack<string> s2;
+    s2.push("Hello");
+    cout << s2.pop() << endl;
+
+    return 0;
+}
+
   * 
   * 
 
 
 *** MÜLAKAT:
+  * Soru 1: Move constructor’da noexcept neden önemlidir?
   * 
+  * std::vector gibi container’lar elemanları taşırken move constructor çağırır.
+  * Move constructor noexcept değilse, 
+  * vector copy constructor kullanır -->> performans kaybı.
+  * 
+  * Özet: noexcept move semantics ile performansı artırır.
+  * 
+  * 
+  * Soru 2: Template ile normal fonksiyon arasındaki fark nedir?
+  * 
+  * Normal fonksiyon: Sabit tipte, compile-time’da belirli.
+  * Template: Generic, compile-time’da tür türetilir ve type safe.
+  * 
+***
+
+*** MÜLAKAT:
+  * noexcept
+  * Move constructor & move assignment operator’ı noexcept yap.
+  * Fonksiyonun exception throw olmayacağından eminsen noexcept kullan -->> optimizasyon.
+  * Fonksiyon noexcept(false) veya throw -->> default değil.
+  * 
+  * 
+  * Templates
+  * Gereksiz template’ten kaçın -->> compile-time büyüme + uzun hata mesajları.
+  * typename vs class: Fonksiyon ve sınıf template’lerinde aynı anlam.
+  * Modern C++20 Concepts kullan -->> type constraints ile derleme hatalarını azalt.
+  * Template specialization ile tip özelleştirmesi yap.
+  * Variadic templates ile fonksiyon/constructor’ları esnek hale getir.
   * 
 ***
 
