@@ -3167,12 +3167,142 @@ int main() {
 ** Education
 
 
-* 
+* Template Parameters
+  * Template type parameter
+  * Template non-type parameter
+  * Template template parameter
+  * 
+  * 
+
+
+* Function Templates
+  * Template argument deduction
+  *     Hangi template argümanlarını kullanacağını, func bakarak anlamaktadır.
+  * 
+  * Örnek:
+  * 
+
+template <typename T>
+void foo(T)
+{
+    // TODO: Do Sth
+}
+int main()
+{
+    foo(1.9);       ///< T için yapılan çıkarım: double
+
+    const int ival = 4;
+    foo(ival);      ///< T için yapılan çıkarım: int (const düşer)
+}
+
+  * 
+  * 
+  * Öyle bir fonksiyon oluşturun ki, sadece belirli bir türden argüman kabul etsin
+  * 
+
+template <typename T>
+void func(T) = delete;
+
+void func(int);
+
+int main()
+{
+    func(12);
+}
+
+  * 
+  * 
+
+* Function Templates
+  * Farklı veri tipleriyle çalışan genel (generic) fonksiyonlar yazmamızı sağlar.
+  * Aynı mantığı int, double, string gibi farklı tipler için
+  *     tekrar tekrar yazmak yerine tek bir şablon tanımlarız.
+  * Derleyici, fonksiyon çağrıldığında doğru versiyonu compile time üretir.
+  * 
+  * Örnek:
+  * 
+
+template <typename T>
+T add(T a, T b) {
+    return a + b;
+}
+
+int main() {
+    std::cout << "int toplama: " << add(5, 10) << std::endl;           // int
+    std::cout << "double toplama: " << add(3.5, 2.1) << std::endl;     // double
+    std::cout << "char toplama: " << add('A', (char)1) << std::endl;   // char (ASCII matematik)
+    return 0;
+}
+
+  * 
+  * 
+  * Örnek:
+  * 
+
+///< auto + decltype -->> dönüş tipini otomatik çıkarır.
+template <typename T1, typename T2>
+auto multiply(T1 a, T2 b) -> decltype(a * b) {
+    return a * b;
+}
+
+int main() {
+    std::cout << multiply(3, 4.5) << std::endl; // int * double = double
+    return 0;
+}
+
+  * 
+  * 
+  * Örnek:
+  * 
+
+///< Fonksiyon Şablonu Özelleştirme (Specialization)
+template <typename T>
+T printTwice(T value) {
+    return value + value;
+}
+
+// std::string için özel versiyon
+template <>
+std::string printTwice<std::string>(std::string value) {
+    return value + " " + value;
+}
+
+int main() {
+    std::cout << printTwice(5) << std::endl;                  // 10
+    std::cout << printTwice(2.5) << std::endl;                // 5.0
+    std::cout << printTwice(std::string("Merhaba")) << std::endl; // "Merhaba Merhaba"
+    return 0;
+}
+
   * 
   * 
 
 
 *** MÜLAKAT:
+  * Soru: Fonksiyon şablonları neden kullanılır?
+  * Cevap: 
+  * Farklı tipler için aynı mantığı tekrar yazmak yerine tek bir genel fonksiyon tanımlamak.
+  * 
+  * Soru: Fonksiyon aşırı yükleme (overloading) ile şablonlar arasındaki fark nedir?
+  * Cevap:
+  * Overloading -->> her tip için ayrı ayrı fonksiyon tanımlanır.
+  * Template -->> derleyici gerekli versiyonu otomatik üretir.
+  * 
+  * Soru: Şablonlar ne zaman üretilir (instantiate edilir)?
+  * Cevap: Yalnızca şablon çağrıldığında, yani kullanıldığında.
+  * 
+  * Soru: Makrolara göre avantajı nedir?
+  * Cevap: Şablonlar tip güvenlidir, derleme zamanında kontrol yapılır;
+  *     makrolar sadece metin değiştirme yapar.
+  * 
+  * 
+  * Tip çıkarımı (type deduction) -->> derleyici tipi otomatik bulur.
+  * 
+  * Compile-time çalıştığını mutlaka vurgula.
+  * 
+  * specialization (özelleştirme) ve SFINAE (ileri seviye) bilmek avantaj sağlar.
+  * 
+  * Fazla şablon kullanımı binary bloat (derlenmiş dosya büyüklüğü) sorunu yaratabilir
   * 
   * 
 ***
