@@ -3318,12 +3318,249 @@ int main() {
 ** Education
 
 
-* 
+* Class Templates
+  * 
+  * Örnek:
+  * 
+
+///< Sınıf şablonu değildir.
+class Myclass {
+public:
+
+    ///< Function şablonudur.
+    ///< Sınıfın üye fonksiyonudur.
+    ///< Member template'dir.
+    template<typename T>
+    void func(T x); // bool operator()(T)const;
+
+};
+
+int main()
+{
+    Myclass m;
+    m.func(1.4);    ///< OK
+    m.func(1);      ///< OK
+}
+
+  * 
+  *  
+
+
+* std::pair
+  * İki farklı türden olacak ögeyi tek bir biçimde paketliyor.
+  * 
+  * Örnek:
+  * 
+
+#include <utility>
+
+template <typename T, typename U>
+struct Pair {
+    T first;
+    U second;
+};
+
+//Pair<int, double>
+
+
+std::pair<int, double> foo();
+
+int main()
+{
+    pair<double, double> pd{1.2, 3,4};
+    pair<int, int> pi{12, 34};
+
+    pdf = pi; ///< syntax hatası olması lazım.
+}
+
+int main()
+{
+    std::pair p1{4, 1.2}; ///< CTAD: Class template deduction.
+}
+
+  * 
+  * 
+
+
+* Non-type parameter
+  * Tam sayı türleri
+  * Enum türleri
+  * object pointer/referans türleri
+  * function pointer
+  * member function pointer
+  * 
+  * 
+
+
+* Class Templates
+  * Bir sınıfın farklı veri tipleriyle çalışabilmesi için tanımlanır.
+  * 
+  * Fonksiyon şablonuna benzer ama bir sınıfın tüm yapısını generic hale getirir.
+  * 
+  * Derleyici, sınıfı kullanıldığı tipler için ayrı ayrı oluşturur.
+  * 
+  * Örnek:
+  * 
+
+///< Box<int> ve Box<std::string> derleme sırasında ayrı sınıflar gibi üretilir.
+
+// Generic class template
+template <typename T>
+class Box {
+private:
+    T value;
+public:
+    Box(T v) : value(v) {}
+    T getValue() const { return value; }
+};
+
+int main() {
+    Box<int> intBox(42);
+    Box<std::string> strBox("Hello Templates");
+
+    std::cout << intBox.getValue() << std::endl;   // 42
+    std::cout << strBox.getValue() << std::endl;   // Hello Templates
+    return 0;
+}
+
+  * 
+  * 
+
+
+* Class Template with Multiple Parameters
+  * 
+  * Örnek:
+  * 
+
+  template <typename T1, typename T2>
+class Pair {
+private:
+    T1 first;
+    T2 second;
+public:
+    Pair(T1 a, T2 b) : first(a), second(b) {}
+    void print() {
+        std::cout << "First: " << first << ", Second: " << second << std::endl;
+    }
+};
+
+int main() {
+    Pair<int, double> p1(10, 3.14);
+    Pair<std::string, int> p2("Age", 25);
+
+    p1.print(); // First: 10, Second: 3.14
+    p2.print(); // First: Age, Second: 25
+    return 0;
+}
+
+  * 
+  * 
+
+
+* Explicit Specialization (Tam Özelleştirme)
+  * Bazen genel şablon yeterli olmaz. Belirli bir tip için farklı davranış istenir.
+  * 
+  * İşte burada explicit specialization kullanılır.
+  * 
+  * Örnek:
+  * 
+
+///< Burada Printer<int> genel şablonu kullanır.
+///< Printer<std::string> içinse özel davranış uygulanır.
+
+// General template
+template <typename T>
+class Printer {
+public:
+    void print(T value) {
+        std::cout << "General: " << value << std::endl;
+    }
+};
+
+// Explicit specialization for std::string
+template <>
+class Printer<std::string> {
+public:
+    void print(std::string value) {
+        std::cout << "String specialization: " << value << std::endl;
+    }
+};
+
+int main() {
+    Printer<int> p1;
+    Printer<std::string> p2;
+
+    p1.print(100);             // General: 100
+    p2.print("Hello World");   // String specialization: Hello World
+    return 0;
+}
+
+  * 
+  * 
+
+
+* Partial Specialization
+  * Partial specialization yalnızca sınıflar için geçerlidir.
+  * 
+  * Bir kısmı generic kalırken, belirli tiplere özel davranış tanımlanır.
+  * 
+  * Örnek:
+  * 
+
+template <typename T1, typename T2>
+class Pair {
+public:
+    void show() { std::cout << "Generic Pair" << std::endl; }
+};
+
+// Partial specialization for second type = int
+template <typename T>
+class Pair<T, int> {
+public:
+    void show() { std::cout << "Pair with int specialization" << std::endl; }
+};
+
+int main() {
+    Pair<double, char> p1; // Generic Pair
+    Pair<std::string, int> p2; // Pair with int specialization
+
+    p1.show();
+    p2.show();
+    return 0;
+}
+
   * 
   * 
 
 
 *** MÜLAKAT:
+  * Soru: Sınıf şablonları neden kullanılır?
+  * Cevap:
+  * Aynı sınıf yapısını farklı tiplerle kullanmak için, kod tekrarını azaltır.
+  * 
+  * Soru: Full specialization nedir?
+  * Cevap:
+  * Genel şablonun belirli bir tipe tamamen uyarlanmış özel versiyonudur.
+  * 
+  * Soru: Partial specialization ile full specialization farkı nedir?
+  * Cevap:
+  * Full specialization → yalnızca belirli bir tip için uygulanır.
+  * Partial specialization → bazı parametreler generic kalır, bazıları sabitlenir.
+  * 
+  * Soru: Şablonlar ne zaman derlenir?
+  * Cevap:
+  * Kullanıldığında (instantiation). Yani kullanılmayan şablonlar derlenmez.
+  * 
+  * 
+  * template <typename T> → derleyici tip bağımlı kod üretir.
+  * 
+  * Sınıf şablonları için hem full specialization hem de partial specialization bilmek önemli.
+  * 
+  * Fonksiyon şablonlarında partial specialization yoktur, yalnızca sınıflarda vardır.
+  * 
+  * typename ve class aynı anlama gelir (şablon parametresi için).
+  * 
+  * Sorularda “Printer<int> ile Printer<std::string> arasındaki farkı açıkla” gibi örnekler gelir.
   * 
   * 
 ***
