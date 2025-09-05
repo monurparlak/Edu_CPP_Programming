@@ -3577,12 +3577,568 @@ int main() {
 ** Education
 
 
-* 
+* Partial Specialization
+  * 
+  * Örnek:
+
+///< Primary Template
+template <typename T>
+void func(T)
+{
+    std::cout << 1;
+}
+
+///< Explicit Specialization
+template <>
+void func(int*)
+{
+    std::cout << 2;
+}
+
+///< Function Template
+template <typename T>
+void func(T*)
+{
+    std::cout << 3;
+}
+
+int main()
+{
+    int* p = nullptr;
+    func(p);
+}
+
+CEVAP: 3
+
+  * 
+  * 
+
+
+* Primary template
+  * 
+  * Örnek:
+  * 
+
+template <typename T>
+struct Myclass {
+public:
+    Myclass()
+    {
+        std::cout << "primarey template type T is : " << typeid(T).name() << '\n';
+    }
+};
+
+template <typename T>
+struct Myclass <T*> {
+    Myclass()
+    {
+        std::cout << "Partial spec. T *\n";
+    }
+}
+
+int main()
+{
+    Myclass<int> m1;
+    Myclass<double> m2;
+    Myclass<void> m3;
+    Myclass<int*> m4;
+    Myclass<double**> m5;
+}
+
+  * 
+  * 
+  * Örnek:
+  * 
+
+template <typename T>
+struct Myclass {
+public:
+    Myclass()
+    {
+        std::cout << "primarey template type T is : " << typeid(T).name() << '\n';
+    }
+};
+
+template <typename T>
+struct Myclass <T&> {
+
+}
+
+int main()
+{
+    Myclass<int> m1;
+    Myclass<double> m2;
+    Myclass<void> m3;
+    Myclass<int*> m4;
+    Myclass<double**> m5;
+}
+
+  * 
+  * 
+
+
+* variadic templates
+  * 
+  * Örnek:
+  * 
+
+///< Bu fonksiyon n tane argüman ile çağrılabilir.
+///< recursive instantiation
+
+///< Base case olarak ayrı bir template yazılmalıdır.
+template <typename T>
+void print(const T& t)
+{
+    std::cout << t << " ";
+}
+
+// template <typename ...Ts>
+// void foo(Ts ...args) { }
+
+template <typename T, typename ...Ts>
+void print(const T&t, Ts& ...args)
+{
+    ///< Bu durumda bu fonk. 4 tane arg. gönderildiğinde aşağıdaki ile 3 tane olur.
+    print(args..);
+}
+
+int main()
+{
+    ///< Bu çağrı sonuçlandığında template parametre paketinde 3 arg. olucak
+    print(1, 2.3, "alican", 45f);
+}
+
+  * 
+  * 
+
+
+* perfect forwarding
+  * 
+  * Örnek:
+  * 
+
+void func (T x)
+
+int main()
+{
+    func(12);   ///< Argüman parametre değişkenine kopyalanıyor.
+}
+
+///< Ama func yerine foo isimli bir fonk. çağrılır.
+
+void func (T x)
+
+void foo(???)
+
+int main()
+{
+    // func(12);    ///< Argüman parametre değişkenine kopyalanıyor.
+    // foo(arg);    ///< Argüman L-value ya da R-value olabilir
+                    ///< Argüman const ya da non-const olabilir
+}
+
+  * 
+  * 
+  * Örnek:
+  * 
+
+class Myclass {};
+
+// 1.
+void foo (Myclass&)
+{
+    std::cout << "Myclass&\n";
+}
+
+// 2.
+void foo (const Myclass&)
+{
+    std::cout << "const Myclass&\n";
+}
+
+// 3.
+void foo (Myclass&&)
+{
+    std::cout << "Myclass&&\n";
+}
+
+void call_foo (Myclass& x)
+{
+    foo(x);
+}
+
+void call_foo (const Myclass& x)
+{
+    foo(x);
+}
+
+void call_foo (Myclass&& x)
+{
+    foo(x);
+}
+
+template <typename T>
+void call_foo(T&& x)
+{
+    foo(std::forward<T>(x));
+}
+
+int main()
+{
+    Myclass m;
+    const Myclass cm;
+
+    ///< Hangi overload: Gönderilen eleman L-value       -->> 1.
+    foo(m);
+    call_foo(m);
+
+    ///< Hangi overload: Gönderilen eleman const L-value -->> 2.
+    foo(cm);
+    call_foo(cm);
+
+    ///< Hangi overload: Gönderilen eleman PR-value      -->> 3.
+    foo(Myclass{});
+    call_foo(Myclass{});
+}
+
+  * 
+  * 
+
+
+* Template Metaprogramming (TMP)
+  * Şablonları kullanarak derleme zamanında hesaplama yapma tekniğidir.
+  * Aslında C++’ta şablonlar ile “compile-time programlama” yapılır.
+  * En çok kullanılan alanlar: 
+  *     Tip çıkarımı, matematiksel hesaplamalar, SFINAE, type traits.
+  * 
+  * Örnek:
+  * 
+
+///< Burada faktöriyel derleme zamanında hesaplanır.
+///< constexpr sayesinde runtime’da değil, compile-time’da değer çıkarılır.
+
+// Recursive template
+template <int N>
+struct Factorial {
+    static constexpr int value = N * Factorial<N - 1>::value;
+};
+
+// Base case
+template <>
+struct Factorial<0> {
+    static constexpr int value = 1;
+};
+
+int main() {
+    std::cout << "Factorial<5>::value = " << Factorial<5>::value << std::endl; // 120
+}
+
+  * 
+  * 
+
+
+* Concepts (C++20)
+  * Şablon parametrelerine kısıtlama (constraint) getirmeyi sağlar.
+  * Böylece hata mesajları daha anlaşılır olur.
+  * Önceden SFINAE ile yapılan birçok kontrol, concepts ile çok daha basit hale geldi.
+  * 
+  * Örnek:
+  * 
+
+///< Eğer concept sağlanmazsa -->> daha anlamlı derleyici hatası alınır.
+  
+// Concept: sadece sayısal tipler
+template <typename T>
+concept Number = std::integral<T> || std::floating_point<T>;
+
+// Template constrained by concept
+template <Number T>
+T add(T a, T b) {
+    return a + b;
+}
+
+int main() {
+    std::cout << add(3, 5) << std::endl;      // OK (int)
+    std::cout << add(2.5, 4.5) << std::endl;  // OK (double)
+    // std::cout << add("a", "b") << std::endl; // ERROR: concept failure
+}
+
+  * 
+  * 
+
+
+* Constraints
+  * Concept’lerin uygulanma şeklidir.
+  * requires ifadesi ile yazılır.
+  * 
+  * requires -->> ifade tabanlı kontrol yapabilir (ör. a.size() var mı?).
+  * 
+  * Örnek:
+  * 
+
+///< requires Clause
+template <typename T>
+requires std::is_integral_v<T>  // sadece integral tipler
+T multiply(T a, T b) {
+    return a * b;
+}
+
+int main() {
+    std::cout << multiply(3, 4) << std::endl; // OK
+    // std::cout << multiply(3.5, 2.1) << std::endl; // ERROR
+}
+
+  * 
+  * 
+  * Örnek:
+  * 
+
+///< requires Expression
+// T'nin .size() fonksiyonu olmalı
+template <typename T>
+concept HasSize = requires(T a) {
+    { a.size() } -> std::convertible_to<std::size_t>;
+};
+
+template <HasSize T>
+void printSize(const T& container) {
+    std::cout << "Size: " << container.size() << std::endl;
+}
+
+#include <vector>
+int main() {
+    std::vector<int> v = {1, 2, 3};
+    printSize(v); // OK
+    // printSize(5); // ERROR
+}
+
   * 
   * 
 
 
 *** MÜLAKAT:
+  * Soru: TMP’nin en büyük avantajı nedir?
+  * Cevap:
+  * Derleme zamanında hesap yaparak runtime maliyetini ortadan kaldırır. 
+  *     Ayrıca tip güvenliği sağlar.
+  * 
+  * Soru: Concepts, SFINAE’den farkı nedir?
+  * Cevap:
+  * 
+  * SFINAE -->> karmaşık ve hatalar anlaşılmaz.
+  * 
+  * Concepts -->> çok daha okunabilir, hatalar açıklayıcı.
+  * 
+  * Soru: requires ne işe yarar?
+  * Cevap:
+  * Template parametrelerinin belirli özellikleri taşımasını şart koşar.
+  * 
+  * Soru: TMP’nin dezavantajı nedir?
+  * Cevap:
+  * Aşırı karmaşık kodlara yol açabilir, derleme süresini uzatır.
+  * 
+  * 
+  * TMP -->> derleme zamanı hesaplamaları için kullanılır.
+  *     “Compile-time recursion” çok sık çıkar.
+  * 
+  * Concepts -->> C++20 ile gelen en önemli özelliklerden biri,
+  *     SFINAE’nin modern alternatifi.
+  * 
+  * requires -->> constraints için kritik kelime,
+  *     hem “clause” hem “expression” ile kullanılabilir.
+  * 
+  * Sık sorulan örnek:
+  * “Bir şablon fonksiyonun yalnızca std::integral tiplerde çalışmasını 
+  *     nasıl sağlarsın?” -->> Concepts/Constraints cevabı beklenir.
+  * 
+  * 
+***
+
+
+* Partial Specialization (Kısmi Özelleştirme)
+  * Yalnızca class templates için geçerlidir.
+  * Genel şablonun bir kısmı sabitlenir, diğer kısmı generic kalır.
+  * 
+  * Örnek:
+  * 
+
+// Genel şablon
+template <typename T1, typename T2>
+class Pair {
+public:
+    void show() { std::cout << "Generic Pair" << std::endl; }
+};
+
+// İkinci tip int olursa özel davranış
+template <typename T>
+class Pair<T, int> {
+public:
+    void show() { std::cout << "Partial specialization: second is int" << std::endl; }
+};
+
+int main() {
+    Pair<double, char> p1;   // Genel
+    Pair<std::string, int> p2; // Kısmi özelleştirme
+
+    p1.show(); // Generic Pair
+    p2.show(); // Partial specialization: second is int
+}
+
+  * 
+  * 
+
+
+* Perfect Forwarding (Mükemmel İletim)
+  * T&& (universal reference) + std::forward<T> kullanılır.
+  * Argümanı değer kategorisini (lvalue/rvalue) bozmadan başka bir fonksiyona iletir.
+  * 
+  * Örnek:
+  * 
+
+void printValue(const int& x) { std::cout << "Lvalue: " << x << std::endl; }
+void printValue(int&& x)      { std::cout << "Rvalue: " << x << std::endl; }
+
+template <typename T>
+void forwarder(T&& arg) {
+    printValue(std::forward<T>(arg)); // mükemmel iletim
+}
+
+int main() {
+    int a = 10;
+    forwarder(a);   // Lvalue
+    forwarder(20);  // Rvalue
+}
+
+  * 
+  * 
+
+
+* Alias Template (Şablon Takma Adı)
+  * typedef yerine using ile şablonlara takma ad verilebilir.
+  * 
+  * Örnek:
+  * 
+
+// Alias template
+template <typename T>
+using Vec = std::vector<T>;
+
+int main() {
+    Vec<int> v = {1, 2, 3};
+    for (auto n : v) std::cout << n << " ";
+}
+
+  * 
+  * 
+
+
+* Variadic Template (Giriş)
+  * Sınırsız sayıda parametre alabilen şablonlardır.
+  * 
+  * Örnek:
+  * 
+
+template <typename... Args>
+void printAll(Args... args) {
+    (std::cout << ... << args) << std::endl; // fold expression
+}
+
+int main() {
+    printAll(1, 2.5, "Hello", 'A'); // 1 2.5 Hello A
+}
+
+  * 
+  * 
+
+
+* Pack Expansion (Parametre Açılımı)
+  * '...' operatörü ile parametreler açılır.
+  * 
+  * Örnek:
+  * 
+
+template <typename... Args>
+void printEach(Args... args) {
+    ( (std::cout << args << " "), ... ); // parametreleri açar
+}
+
+int main() {
+    printEach(10, 20, 30, "end");
+}
+
+  * 
+  * 
+
+* Fold Expressions (C++17)
+  * Variadic parametreler üzerinde toplama, çarpma vb. işlemleri kolaylaştırır.
+  * 
+  * Örnek:
+  * 
+
+template <typename... Args>
+auto sum(Args... args) {
+    return (args + ...); // fold expression
+}
+
+int main() {
+    std::cout << sum(1, 2, 3, 4, 5) << std::endl; // 15
+}
+
+  * 
+  * 
+
+
+* Variable Templates
+  * Değişkenleri de şablonlaştırır.
+  * 
+  * Örnek:
+  * 
+
+// Generic constant
+template <typename T>
+constexpr T pi = T(3.1415926535897932385);
+
+int main() {
+    std::cout << pi<double> << std::endl;
+    std::cout << pi<float> << std::endl;
+}
+
+  * 
+  * 
+
+
+*** MÜLAKAT:
+  * Partial vs Full Specialization farkı nedir?
+  * Cevap:
+  * Full -->> tamamen belirli tipe özel.
+  * Partial -->> bir kısmı generic kalır.
+  * 
+  * Perfect forwarding neden önemlidir?
+  * Cevap:
+  * Fonksiyon argümanını değer kategorisini (lvalue/rvalue) koruyarak başka fonksiyona iletir.
+  * 
+  * Variadic templates nerelerde kullanılır?
+  * Cevap:
+  * std::tuple, std::make_shared, std::format, sınırsız argüman fonksiyonlarında.
+  * 
+  * Fold expression nedir?
+  * Cevap:
+  * Variadic parametreleri toplama/çarpma gibi işlemlerle kolayca birleştirme yöntemidir.
+  * 
+  * Variable template nerede kullanılır?
+  * Cevap:
+  * Tip bağımlı sabitler (pi<float>, pi<double>) veya compile-time değerlerde.
+  * 
+  * 
+  * template <typename T> ile yazılan şablonlar derleme zamanında çözülür.
+  * 
+  * T&& her zaman rvalue reference değildir -->> universal reference olabilir.
+  * 
+  * Variadic template + fold expression -->> en sık mülakat sorusu!
+  * 
+  * Alias template ile typedef farkını sorabilirler.
+  * 
+  * Variable templates genellikle matematiksel sabitler için kullanılır.
   * 
   * 
 ***
