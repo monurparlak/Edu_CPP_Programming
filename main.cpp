@@ -4154,12 +4154,350 @@ int main() {
 ** Education
 
 
-* 
+* STL (Standard Template Library)
+  * Containers : Temel veri yapılarını implement eden veri şablonlarıdır.
+  * Iterators  : Container'larda tutulan ögelerin konum bilgisini kullanır.
+  * Algorithms : Algoritmaları implement eden generic fonk.'dır.
+  * 
+  * Algoritmalar parametresi iterator olan fonksiyonlardır.
+  * Algoritmalar iterator parametreleri ile üstünde işlem yapacağı
+  *     veri yapısındaki ögelere erişim sağlıyor.
+  * 
+  * 
+
+
+* Containers : 
+  * Container veri yapılarını implement eden sınıflardır.
+  * 
+  * Sequence containers : ...
+  * std::vector : Dinamik dizi sınıfıdır.
+  * std::deque : Dinamik dizilerin dizisidir. Elemanları dizi olan bir dizidir.
+  * std::list : Çifte bağlı liste sınıfıdır.
+  * std::forward_list : Teke bağlı liste sınıfıdır.
+  * std::array : C dizilerini sarmalayan, onları STL uyumlu ve güvenli hale getirir.
+  * std::string : 
+  * 
+  * Associative containers : Önceden verilmiş değerler arasında arama ve sorgu yapar.
+  * std::set : Sadece bir key tutulabilir.
+  * std::multiset : Birden fazla key tutulabilir.
+  * td::map : Anahtar değer çiftleridir. Anahtarla arama yapıp bulunca anahtarla eşleştiriyor
+  * std::multimap : Birden fazla anahtar tutulabilir.
+  * 
+  * Unordered associative containers : Hash-Table veri yapısıdır.
+  * std::unordered_set : ...
+  * std::unordered_multiset : ...
+  * std::unordered_map : ...
+  * std::unordered_multimap : ...
+  * 
+  * 
+
+
+* Örnek:
+  * 
+  * Örnek-1:
+  * 
+
+template <typename Iter>
+void print_array (Iter beg, Iter end)
+{
+    while (beg != end)
+    {
+        std::cout << *beg << ' ';
+        ++beg;
+    }
+    
+    std::cout << '\n';
+}
+
+int main()
+{
+    std::vector<double> dvec{1.2, 3.4, 5.6, 7.8, 9.1};
+    
+    print_array(dvec.begin(), dvec.end());
+
+    std::list<std::string> names{"alpha", "beta", "charlie", "delta", "echo"};
+
+    print_array(names.begin(), names.end());
+
+}
+
+  * 
+  * Örnek-2:
+  * 
+
+int main()
+{
+    using namespace std;
+
+    ///< vector açılımı nasıl yapılır?
+    ///< 1. yöntem : vector<int> ivec{12, 34, 56, 78};
+
+    ///< begin() değerinin geri dönüş türünü tutacak bir değişken istersen:
+    ///< 1. yöntem : vector<int>::iterator iter = ivec.begin();
+    ///< 2. yöntem : auto iter = ivec.begin();
+
+
+    list<string> slist;
+    auto iter = slist.begin();
+}
+
+  * 
+  * Örnek:
+  * 
+
+///< Bir container ilk üyesine iterator almak için non-static member func olan begin() çağrılır.
+int main ()
+{
+    using namespace std;
+
+    vector<int> ivec(1000);
+    ivec.begin();   ///< Alternatif
+    begin(ivec);    ///< Alternatif
+
+    vector<int> ivec(1000);
+    int ar[100]{};
+    auto iter = begin(ivec);
+}
+
+  * 
+  * 
+
+
+* Iterator category
+  * output iterator         : 
+  *     copy construtible
+  *     ++it it++
+  *     *it it-> (R-value)
+  *     ostream_iterator - ostreambuf_iterator
+  * 
+  * input iterator          : 
+  *     copy constructible
+  *     ++it it++
+  *     *it it-> (L-value)
+  *     istream_iterator - ostreambuf_iterator
+  * 
+  * forward iterator        : 
+  *     intput ve output
+  *     forward_list-unordered hash-table
+  * 
+  * bidirectional operator  : 
+  *     input + output iterator
+  *     --it it-- 
+  *     list-set multiset- map multimap
+  * 
+  * random access iterator  : 
+  *     bidirectional iterator
+  *     C prog. operasyonlarını destekler.
+  *     vector - deque - array - string - C array
+  * 
+  * Örnek:
+  * 
+
+int main()
+{
+    ///< vector iteratorleri nedir? Random access iteratordur.
+    vector<int> ivec(100);
+    auto iter1 = ivec.begin();
+    auto iter2 = ivec.begin();
+
+    *iter1;                 // Hata yok
+    ++iter1;                // Hata yok
+    --iter1;                // Hata yok
+
+    iter1 += 5;             // Hata yok
+    iter1 - iter2;          // Hata yok
+    iter2[12];              // Hata yok
+
+    iter1 < iter2;          // Hata yok
+}
+
+  * 
+  * Örnek:
+  * 
+
+int main()
+{
+    ///< list iteratorleri nedir? Random access iteratordur.
+    list<int> ilist(100);
+    auto iter1 = ilist.begin();
+    auto iter2 = ilist.begin();
+
+    *iter1;         // Hata yok
+    ++iter1;        // Hata yok
+    --iter1;        // Hata yok
+
+    iter1 += 5;     // Hata var
+    iter1 - iter2;  // Hata var
+    iter2[12];      // Hata var
+
+    iter1 < iter2;  // Hata var
+}
+
+  * 
+  * 
+
+
+* Örnekler:
+  * 
+  * Örnek-1:
+  * 
+
+template <typename T, typename U>
+struct IsSame : std::false_type {};
+
+template <typename T>
+struct IsSame<T, T> : std::true_type {};
+
+template <typename T, typename U>
+constexpr bool IsSame_v = IsSame<T, U>::value;
+
+int main()
+{
+    IsSame<int, double>::value; ///< false_type
+    IsSame<int, int>::value;    ///< true_type
+    IsSame<int, double>;        ///< false_type
+}
+
+  * 
+  * Örnek-2:
+  * 
+
+///< Iteratorun random access iterator olup olmadığı nasıl test edilir?
+template<typename Iter>
+void algo(Iter beg, Iter end)
+{
+    ///< Iteratorun iterator türü Random Access Iterator Tag ise
+    if constexpr(std::is_same_v<typename Iter::iterator_category, std::random_access_iterator_tag>)
+    {
+        // TODO: Do Sth.
+    }
+    ///< Iteratorun iterator türü Bidirectional Access Iterator Tag ise
+    else if constexpr(std::is_same_v<typename Iter::iterator_category, std::bidirectional_access_iterator_tag>)
+    {
+        // TODO: Do Sth.
+    }
+    else
+    {
+        // TODO: Do Nothing.
+    }
+}
+
+  * 
+  * 
+
+
+* STL (Standard Template Library)
+  * STL, C++’ta veri yapıları ve algoritmaları şablon tabanlı sağlayan kütüphanedir.
+  * 
+  * 3 temel bileşenden oluşur:
+  *     Containers (Kapsayıcılar) -->> veri yapıları (vector, list, map…)
+  *     Algorithms (Algoritmalar) -->> hazır fonksiyonlar (sort, find, count…)
+  *     Iterators (Yineleyiciler) -->> kapsayıcı elemanlarını dolaşma aracı
+  * 
+  * 
+
+
+* 1. Containers (Kapsayıcılar)
+  * Sequence Containers: vector, deque, list, forward_list, array
+  * 
+  * Associative Containers: set, multiset, map, multimap
+  * 
+  * Unordered Containers (C++11+): unordered_set, unordered_map
+  * 
+  * Container Adapters: stack, queue, priority_queue
+  * 
+  * Örnek:
+  * 
+
+int main() {
+    std::vector<int> v = {4, 2, 8, 1};
+
+    std::sort(v.begin(), v.end()); // STL algoritması
+
+    for (int n : v)
+        std::cout << n << " ";  // 1 2 4 8
+}
+
+  * 
+  * 
+
+
+* 2. Algorithms (Algoritmalar)
+  * STL algoritmaları iteratorlar üzerinde çalışır.
+  * 
+  * Örnekler: sort, find, count, accumulate, for_each.
+  * 
+  * Örnek:
+  * 
+
+  int main() {
+    std::vector<int> v = {1, 2, 3, 4, 5};
+
+    auto it = std::find(v.begin(), v.end(), 3);
+    if (it != v.end())
+        std::cout << "Found: " << *it << std::endl;
+}
+
+  * 
+  * 
+
+
+* 3. Iterators (Yineleyiciler)
+  * Iterator = pointer benzeri nesne, kapsayıcıların elemanlarını dolaşmaya yarar.
+  * Türleri:
+  *     Input Iterator -->> sadece okuma (istream_iterator)
+  *     Output Iterator -->> sadece yazma (ostream_iterator)
+  *     Forward Iterator -->> ileri yönde okuma-yazma (forward_list)
+  *     Bidirectional Iterator -->> ileri & geri (list, set, map)
+  *     Random Access Iterator -->> pointer gibi ileri-geri atlama (vector, deque, array)
+  * 
+  * Örnek:
+  * 
+
+  int main() {
+    std::vector<int> v = {10, 20, 30};
+
+    // Iterator ile dolaşma
+    for (std::vector<int>::iterator it = v.begin(); it != v.end(); ++it) {
+        std::cout << *it << " ";
+    }
+}
+
+///< Modern C++ ile:
+for (auto it = v.begin(); it != v.end(); ++it) { ... }
+for (int n : v) { ... }  // range-based for
+
   * 
   * 
 
 
 *** MÜLAKAT:
+  * Soru: STL’in avantajları nelerdir?
+  * Cevap:
+  * Generic (her tip için çalışır)
+  * Performanslı (çoğu algoritma O(N log N) veya O(N))
+  * Test edilmiş, güvenilir
+  * 
+  * Soru: vector ile list farkı nedir?
+  * Cevap:
+  * vector -->> random access hızlıdır, ortadan ekleme/silme yavaştır.
+  * list -->> ortadan ekleme/silme hızlıdır, random access yoktur.
+  * 
+  * Soru: Random access iterator hangi kapsayıcılarda vardır?
+  * Cevap:
+  * vector, deque, array.
+  * 
+  * Soru: map ile unordered_map farkı nedir?
+  * Cevap:
+  * map -->> balanced tree, sıralı, O(log N).
+  * unordered_map -->> hash tabanlı, sırasız, O(1) average.
+  * 
+  * 
+  * STL = Container + Algorithm + Iterator üçlüsü akılda tut.
+  * Algoritmalar kapsayıcıya değil, iteratöre uygulanır. Bu en sık sorulan noktalardan biri.
+  * İleri seviye mülakatta, vector reallocation, map vs unordered_map performans farkları sorulabilir.
+  * begin() -->> ilk eleman, end() -->> sonrasını gösterir (son elemanı değil!).
+  * Modern C++’ta auto ve range-based for iterator kullanımını kolaylaştırır.
   * 
   * 
 ***
