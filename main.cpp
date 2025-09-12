@@ -4513,12 +4513,254 @@ for (int n : v) { ... }  // range-based for
 ** Education
 
 
-* 
+* Algorithm genel bakış
+  * 
+  * Örnek:
+  * 
+
+///< 1. satır: Bu template kaç template parametresi var?
+///< 2. satır: Bu fonk kaç tane parametre değişkeni?
+///< 2. satır: Birinci ve ikinci parametre neyi temsil ediyor?
+///< 2. satır: Kopyalama değerlendirmesi neye göre belirleniyor?
+///< 2. satır: Burada STL kullandığı başka bir convention var mı?
+///< x. satır: Algoritmalar exception pro veriyorlar mı? 
+///< 6. satır: Burada hata var mı?
+///< 7. satır: Listede 10 tane üye olsaydı, copy algo. bu çağrı için ne yapardı?
+///< 8. satır: Geri dönüş değeri kullanılmak istendi. Geri dönüş değeri kimin iteratorü?
+///< 8. satır: Geri dönüş değeri hangi konumu tutuyor?
+///< 9. satır: iter türü nedir?
+///< 9. satır: Sadece bu iter'i kullanarak vector'deki bütün ögeleri değiştirilebilir mi?
+///< 9. satır: Iteratoru referans semantiği ile bir fonksiyona geçmeme gerek var mı?
+///< 10. satır: iter2 kullanılarak vector'deki bütün ögeleri değiştirebilir miyim?
+
+
+1. satır: template <typename InIter, typename OutIter>
+2. satır: OutIter Copy(InIter beg, InIter end, OutIter destbeg)
+{
+3. satır: 
+    while (beg != end)
+    {
+        *destbeg++ = *beg++; 
+    }
+    return destbeg;
+}
+
+int main()
+{
+    using namespace std;
+
+4. satır: vector<int> ivec{1, 3, 5, 7, 9, 1};
+5. satır: list<int> ilist;
+6. satır: Copy(ivec.begin(), ivec.end(), ilist.begin());
+7. satır: list<int> ilist<10>;
+8. satır: auto iter = COpy(ivec.begin(), ivec.end(), ilist.begin());
+9. satır: auto iter = ivec.begin();
+10. satır: auto iter2;
+}
+
+///< 1. satır: Bu template kaç template parametresi var?
+    Cevap:2
+///< 2. satır: Bu fonk kaç tane parametre değişkeni?
+    Cevap:3
+///< 2. satır: Birinci ve ikinci parametre neyi temsil ediyor?
+    Cevap: Kopyalamada kaynak olarak kullanılacak range'i.
+///< 2. satır: Kopyalama değerlendirmesi neye göre belirleniyor?
+    Cevap: destbeg parametresinden başlayarak kopyalayacak.
+///< 2. satır: Burada STL kullandığı başka bir convention var mı?
+    Cevap: Var. Önce kaynak sonra hedef. STL -> önce hedef sonra kaynak.
+///< x. satır: Algoritmalar exception prov veriyorlar mı?
+    Cevap: Hayır. Algoritmanın geçerli ve doğruluğundan biz sorumluyuz. 
+///< 6. satır: Burada hata var mı?
+    Cevap: Evet! Tanımsız davranış var. ilist içerisi boş.
+    Çağrılabilir ama de-reference yapılamaz
+///< 7. satır: Listede 10 tane üye olsaydı, copy algo. bu çağrı için ne yapardı?
+    Cevap: Listedeki ilk 6 ögenin yerini değiştirecekti.
+///< 8. satır: Geri dönüş değeri kullanılmak istendi. Geri dönüş değeri kimin iteratorü?
+    Cevap: ilist'indir.
+///< 8. satır: Geri dönüş değeri hangi konumu tutuyor?
+    Cevap: 6. konum. 
+///< 9: satır: iter türü nedir?
+    Cevap: iterator 
+///< 9: satır: Sadece bu iter'i kullanarak vector'deki bütün ögeleri değiştirilebilir mi?
+    Cevap: Evet
+///< 9: satır: Iteratoru referans semantiği ile bir fonksiyona geçmeme gerek var mı?
+    Cevap: Hayır. Çünkü iterator zaten konum tutan bir değişkendir.
+///< 10. satır: iter2 kullanılarak vector'deki bütün ögeleri değiştirebilir miyim?
+    Cevap: Evet
+
+  * 
+  * Algoritmanın parametre değişkenleri iterator'dür.
+  *     Yani bir algoritma: bir iterator konumundaki nesneye atama yapabilir.
+  * 
+  * Aynı range'deki iki nesneyi takas edebilir.
+  * 
+  * Range'in ilişkin (ait) olduğu kaba (container'a) ekleme yapamaz
+  * Range'in ilişkin (ait) olduğu kaptan (container'a) sile yapamaz
+  * 
+  * 
+
+ 
+* Algorithms genel bakış
+  * STL algoritmaları kapsayıcılar (vector, list, map, set…) üzerinde çalışmaz -->> iteratorlar üzerinde çalışır.
+  * Çoğu algoritma <algorithm> veya <numeric> başlık dosyasında bulunur.
+  * Avantajı: Veri yapısına bağımlı değildir, sadece iterator arayüzüne güvenir.
+  * 
+  * Kategoriler:
+  * Arama: find, find_if, binary_search
+  * Sıralama: sort, stable_sort, partial_sort
+  * Sayma: count, count_if
+  * Dönüşüm: transform, for_each
+  * Kopyalama / Silme: copy, remove, unique
+  * Sayısal: accumulate, inner_product, partial_sum
+  * 
+  * 
+
+
+* Örnekler:
+  * 
+  * Örnek-1:
+  * 
+
+///< find & find_if
+int main() {
+    std::vector<int> v = {10, 20, 30, 40};
+
+    auto it = std::find(v.begin(), v.end(), 30);
+    if (it != v.end())
+        std::cout << "Found: " << *it << std::endl;
+
+    auto it2 = std::find_if(v.begin(), v.end(), [](int x){ return x > 25; });
+    std::cout << "First > 25: " << *it2 << std::endl;
+}
+
+
+  * 
+  * Örnek-2:
+  * 
+
+///< sort & stable_sort
+int main() {
+    std::vector<int> v = {3, 1, 4, 1, 5};
+
+    std::sort(v.begin(), v.end()); // default ascending
+    for (int n : v) std::cout << n << " ";  // 1 1 3 4 5
+
+    std::sort(v.begin(), v.end(), std::greater<int>()); // descending
+}
+  
+  * 
+  * Örnek-3:
+  * 
+
+///< count & count_if
+int main() {
+    std::vector<int> v = {1, 2, 2, 3, 4, 2};
+
+    int c1 = std::count(v.begin(), v.end(), 2);
+    int c2 = std::count_if(v.begin(), v.end(), [](int x){ return x % 2 == 0; });
+
+    std::cout << "Count of 2: " << c1 << std::endl;      // 3
+    std::cout << "Even numbers: " << c2 << std::endl;   // 4
+}
+  
+  * 
+  * Örnek-4:
+  * 
+
+///< transform & for_each
+int main() {
+    std::vector<int> v = {1, 2, 3};
+
+    std::transform(v.begin(), v.end(), v.begin(), [](int x){ return x * 2; });
+    // v = {2, 4, 6}
+
+    std::for_each(v.begin(), v.end(), [](int x){ std::cout << x << " "; });
+}
+  
+  * 
+  * Örnek-5:
+  * 
+
+///< accumulate (Sayısal - <numeric>)
+int main() {
+    std::vector<int> v = {1, 2, 3, 4};
+
+    int sum = std::accumulate(v.begin(), v.end(), 0);
+    std::cout << "Sum = " << sum << std::endl; // 10
+}
+
+  * 
+  * 
+
+
+* Mutating Algorithms (Kapsayıcıyı Değiştirenler)
+  * 
+  * Örnek:
+  * 
+
+///< remove & unique
+int main() {
+    std::vector<int> v = {1, 2, 2, 3, 2};
+
+    v.erase(std::remove(v.begin(), v.end(), 2), v.end()); 
+    // Tüm 2'leri siler
+    for (int n : v) std::cout << n << " ";  // 1 3
+}
+
+  * 
+  * 
+
+
+* Binary Search Algorithms
+  * 
+  * Örnek:
+  * 
+
+///< Sıralı dizilerde çalışır.
+int main() {
+    std::vector<int> v = {1, 3, 5, 7, 9};
+
+    if (std::binary_search(v.begin(), v.end(), 5))
+        std::cout << "5 found!" << std::endl;
+}
+
   * 
   * 
 
 
 *** MÜLAKAT:
+  * Soru: STL algoritmaları neden doğrudan kapsayıcılarla değil, iteratorlarla çalışır?
+  * Cevap:
+  * Böylece algoritmalar generic olur. Aynı sort hem vector hem deque üzerinde çalışabilir.
+  * 
+  * Soru: sort ile stable_sort farkı nedir?
+  * Cevap:
+  * sort hızlıdır ama eşit elemanların sırasını korumaz.
+  * stable_sort daha yavaştır (O(N log² N)) ama eşit elemanların sırasını korur.
+  * 
+  * Soru: remove neden elemanları gerçekten silmez?
+  * Cevap:
+  * remove sadece elemanları sona taşır ve iterator döner. Silme işlemi için erase ile birlikte kullanılmalı.
+  * 
+  * Soru: accumulate hangi header dosyasında bulunur?
+  * Cevap:
+  * <numeric>.
+  * 
+  * Soru: find ile binary_search farkı nedir?
+  * Cevap:
+  * find -->> O(N), sıralama gerekmez.
+  * binary_search -->> O(log N), sıralı dizilerde çalışır.
+  * 
+  * 
+  * “Algorithms work on iterators, not containers” -->> en kritik cümle.
+  * 
+  * remove-erase idiom mülakatlarda çok sık çıkar.
+  * 
+  * std::transform fonksiyonu -->> “map” işlevine çok benzer.
+  * 
+  * stable_sort sorulursa, eşit eleman sırasını koruma farkını mutlaka söyle.
+  * 
+  * Modern C++’ta lambda ile birlikte STL algoritmaları çok daha güçlü hale gelir.
   * 
   * 
 ***
