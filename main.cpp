@@ -4775,8 +4775,589 @@ int main() {
 ******************************************************************************
 ** Education
 
+
+* Lambda expression
+  * Derleyici bu ifadeyi gördüğünde, bir class definition yapıyor.
+  * İfadenin kendisini de tanımladığı sınıf türünden bir geçici nesneye,
+  *     (Temporary object) atıyor. PR-Value expression yapıyor.
+  * 
+  * 
+
+
+* Algoritma Manipülasyonu
+  * 
+  * Örnek:
+  * 
+
+template <typename InIter, typename OutIter>
+OutIter Copy(InIter beg, InIter end, OutIter destbeg)
+{
+    while(beg != end)
+    {
+        *destbeg++ = *beg++;
+    }
+    
+    return destbeg;
+}
+
+int main()
+{
+    using namespace std;
+
+    vector source_vec {1, 3, 5, 7, 9, 0, 2, 4, 6, 8};
+    vector<int dest_vec;
+
+    ///< Yukarıdaki Copy algoritmasına dokunmadan ona çağrı yapacaksınız
+    ///< yapacağınız çağrı dest_vec source_vec'teki ögeleri sondan ekleyecek
+    ///< Copy(source_vec.begin(), source_vec.end(), dest_vec.begin());
+}
+
+  * 
+  * Örnek:
+  * 
+
+
+template <typename InIter, typename OutIter>
+OutIter Copy(InIter beg, InIter end, OutIter destbeg)
+{
+    while(beg != end)
+    {
+        *destbeg++ = *beg++;
+    }
+    
+    return destbeg;
+}
+
+template <typename Container>
+class BackInsertIterator {
+public:
+    BackInsertIterator(Container &c) : | rc(c) {}
+
+private:
+    Container& rc;
+
+}
+
+int main()
+{
+    using namespace std;
+
+    vector<int> ivec(100);
+
+    ///< Tanımlanan iter isimli sınıf nesnesi,
+    ///<    Aslında bir referans elemanına sahip olacak.
+    ///<    O referans elemanı ivec referans olacak.
+    ///< Iter kullanıldığı zaman,
+    ///<    iter kendi veri elemanı rc vasıtasıyla ivec kendi elemanına erişebilir.
+    BackInsertIterator<vector<int>> iter(ivec); == BackInsertIteratoriter(ivec);
+}
+
+  * 
+  * Örnek:
+  * 
+
+int main()
+{
+    using namespace std;
+
+    vector<string> svec;
+    rfill(svec, 10000, [] {return rname() + ' ' + rfname();});
+    vector<sting> dvec;
+    size_t len;
+
+    std::cout << "Uzunluğu kaç olanlar kopyalansın: ";
+    cin >> len;
+
+    copy_if(svec.begin(), svec.end(), back_inserter(dvec),
+            [len](const string& s) {return s.length() == len;})
+}
+
+  * 
+  * 
+
+
+* STL'de iteratorleri manipüle eden algoritmalar
+  * Parametreleri manipüle ederler.
+  * 
+  * advance: (ref)
+  *     n pozisyon arttırmak ve azaltmak için kullanılır.
+  * 
+  * distance: (iter1, iter2)
+  *     İki iterator arasındaki farkı bulur.
+  * 
+  * next: (iter, 5)
+  *     iterator ve tamsayı değer alarak, iteratorden sonraki değeri döndürüyor
+  * 
+  * prev:(iter, 5)
+  *     iterator ve tamsayı değer alarak, iteratorden önceki değeri döndürüyor
+  *     
+  * 
+  * iter_swap: (iter_x, iter_y)
+  *     iter konumundaki nesneleri swap eder.
+  * 
+  * 
+
+
+* Kullanım örnekleri:
+  * 
+  * Örnek:
+  * 
+
+///< Tag dispatch
+template <typename Iter>
+void func_impl(Iter beg, Iter end, std::random_access_iterator_tag)
+{
+    ///<
+}
+
+template <typename Iter>
+void func_impl(Iter beg, Iter end, std::bidirectional_iterator_tag)
+{
+    ///<
+}
+
+template <typename Iter>
+void func_impl(Iter beg, Iter end, std::forward_iterator_tag)
+{
+    ///<
+}
+
+template <typename Iter>
+void func(Iterbeg, Iter end)
+{
+    ///< iter konumundaki nesnenin türü
+    ///< tag dispatch
+    func_impl(beg, end, typename Iter::iterator_category{});
+}
+
+int main()
+{
+    using namespace std;
+
+    vector<int> ivec;
+    list<int> ilist;
+    forward_list<int> flist;
+    
+    func(ivec.begin(), ivec.end());     ///< random access
+    func(ilist.begin(), ilist.end());   ///< bidirectional
+    func(flist.begin(), flist.end());   ///< forward
+}
+  
+  * 
+  * Örnek:
+  * 
+
+template <typename Iter>
+struct IteratorTraits {
+    using iterator_category = typename Iter::iterator_category;
+    using pointer = typename Iterator::pointer;
+};
+
+template <typename Iter>
+void func(Iterbeg, Iter end)
+{
+    using cat = typename Iter::iterator_category;
+    //using cat = typename std::iterator_traits<Iter>::iterator_category;
+
+    if constexpr (std::is_same_v<cat, std::random_access_iterator_tag>)
+    {
+        std::cout << "random access\n";
+    }
+    else if constexpr (std::is_same_v<cat, std::bidirectional_iterator_tag>)
+    {
+        std::cout << "bidirectional\n";
+    }
+    else if constexpr (std::is_same_v<cat, std::forward_iterator_tag>)
+    {
+        std::cout << "forward\n";
+    }
+    else
+    {
+        ///< TODO: Do Nothing.
+    }
+}
+
+int main()
+{
+    using namespace std;
+
+    vector<int> ivec;
+    list<int> ilist;
+    forward_list<int> flist;
+    
+    func(ivec.begin(), ivec.end());     ///< random access
+    func(ilist.begin(), ilist.end());   ///< bidirectional
+    func(flist.begin(), flist.end());   ///< forward
+
+    int a[10]{};
+
+    func(a, a + 10);
+}
+  
+  * 
+  * Örnek:
+  * 
+
+///< advanced
+
+template <typename Iter>
+void test_advance(Iter& it, int n, std::random_access_iterator_tag)
+{
+    it += n;
+}
+
+template <typename Iter>
+void test_advance(Iter& it, int n, std::bidirectional_iterator_tag)
+{
+    while(n--)
+    {
+        ++it;
+    }
+}
+
+template <typename Iter>
+void test_advance(Iter& it, int n)
+{
+    test_advance(it, n, typename std::iterator_traits<Iter>::iterator_category{});
+}
+
+template <typename Iter>
+void func(Iter it)
+{
+    ///< advance olunca :
+    std::advance(it, 3);
+
+    ///< advance olmayınca:
+    for (int i = 0; i < 3; ++i) { ++it; }
+
+    std:cout << *it << '\n';
+}
+
+int main()
+{
+    using namespace std;
+
+    vector<int> ivec {2, 4, 6, 8, 0, 1, 3, 5};
+    list<int> ilist {2, 4, 6, 8, 0, 1, 3, 5};
+
+    auto vector_iter = ivec.begin();
+    auto list_iter = ilist.begin();
+
+    advance(vec_iter, 3);   ///< vec_iter 3 pozisyon ilertecek      ///< 8
+    advance(list_iter, 3);  ///< list_iter 3 pozisyon ilertecek     ///< 8
+    advance(list_iter, -3); ///< list_iter 3 pozisyon tersten ilerleyecek ///< 1
+}
+
+  * 
+  * Örnek:
+  * 
+
+///< distance
+
+int main()
+{
+    using namespace std;
+
+    list mylist{1, 2, 3, 4, 5, 6, 7, 8};
+
+    auto iter1 = mylist.begin();
+    auto iter2 = mylist.end();
+    
+    advance(iter1, 2);
+    advance(iter2, -1);
+
+    auto n = distance(iter1, iter2); ///< iter1'i kaç arttırırsam iter2 çıkar?
+
+    ///< iter1:3 konumunda | iter2:8 konumunda.
+    ///< iter1'yi 5 kez arttırırsam iter2 konumuna gelir.
+    cout << "n = " << n << '\n';
+
+}
+
+  * 
+  * Örnek:
+  * 
+
+///< next
+
+int main()
+{
+    using namespace std;
+
+    vector<int> ivec{1, 2, 3, 4, 5, 6, 7, 8};
+    auto iter = next(ivec.begin(), 3);
+    cout << *iter << '\n'; ///< 4.konuma gider.
+
+    list<int ilist{1, 2, 3, 4, 5, 6, 7, 8};
+    auto iter = next(ilist.begin(), 3);
+    cout << *iter << '\n'; ///< 4.konuma gider.
+
+    cout << *next(ilist.begin()) << '\n'; ///< 2 yazar.
+    cout << *next(ilist.begin(), 3) << '\n'; ///< 4 yazar.
+    
+}
+
+  * 
+  * Örnek:
+  * 
+
+///< prev
+
+int main()
+{
+    using namespace std;
+
+    vector<int> ivec{1, 2, 3, 4, 5, 6, 7, 8};
+    auto iter = prev(ivec.begin(), 3);
+    cout << *iter << '\n'; ///< 6.konuma gider.
+
+    list<int ilist{1, 2, 3, 4, 5, 6, 7, 8};
+    auto iter = prev(ilist.begin(), 3);
+    cout << *iter << '\n'; ///< 6.konuma gider.
+
+    cout << *prev(ilist.begin()) << '\n'; ///< 8 yazar.
+    cout << *prev(ilist.begin(), 3) << '\n'; ///< 6 yazar.
+    
+}
+
+  * 
+  * 
+
+
+* Iterator Manipulation
+  * Iterator aralıkları üzerinde çalışan ve
+  *     veri taşıma/kopyalama/değiştirme yapan algoritmalardır.
+  * Tümü <algorithm> veya <numeric> başlıklarında bulunur.
+  * 
+  * 
+
+
+* Kopyalama ve Taşıma
+  * 
+  * Örnek:
+  * 
+
+///< std::copy
+///< Bir aralıktaki elemanları başka bir aralığa kopyalar.
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+int main() {
+    std::vector<int> src = {1, 2, 3};
+    std::vector<int> dest(3);
+
+    std::copy(src.begin(), src.end(), dest.begin());
+
+    for (int n : dest) std::cout << n << " "; // 1 2 3
+}
+
+  * 
+  * Örnek:
+  * 
+
+///< std::copy_if
+///< Şartı sağlayanları kopyalar.
+
+std::vector<int> src = {1, 2, 3, 4, 5};
+std::vector<int> dest;
+
+std::copy_if(src.begin(), src.end(), std::back_inserter(dest),
+             [](int x){ return x % 2 == 0; });
+
+for (int n : dest) std::cout << n << " "; // 2 4
+
+  * 
+  * Örnek:
+  * 
+
+///< std::move
+///< Elemanları taşır (kopyalamaz). Kaynak elemanlar geçersiz hale gelir.
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+
+int main() {
+    std::vector<std::string> src = {"one", "two", "three"};
+    std::vector<std::string> dest(3);
+
+    std::move(src.begin(), src.end(), dest.begin());
+
+    for (auto& s : dest) std::cout << s << " "; // one two three
+    std::cout << "\nSrc[0] after move: " << src[0] << std::endl; // boş
+}
+
+  * 
+  * 
+
+
+* Doldurma ve Atama
+  * 
+  * Örnek:
+  * 
+
+///< std::fill
+///< Bütün aralığı sabit değerle doldurur.
+
+std::vector<int> v(5);
+std::fill(v.begin(), v.end(), 7); // 7 7 7 7 7
+
+
+  * 
+  * Örnek:
+  * 
+
+///< std::fill_n
+///< N adet elemana sabit değer atar.
+
+std::vector<int> v(5);
+std::fill_n(v.begin(), 3, 9); // 9 9 9 0 0
+
+  * 
+  * Örnek:
+  * 
+
+///< std::iota (<numeric>)
+///< Artan değerlerle doldurur.
+
+#include <numeric>
+std::vector<int> v(5);
+std::iota(v.begin(), v.end(), 1); // 1 2 3 4 5
+
+  * 
+  * 
+
+
+* Değiştirici Algoritmalar
+  * 
+  * Örnek:
+  * 
+
+///< std::replace
+///< Belirli değeri başka bir değerle değiştirir.
+
+std::vector<int> v = {1, 2, 2, 3};
+std::replace(v.begin(), v.end(), 2, 9); // 1 9 9 3
+
+  * 
+  * Örnek:
+  * 
+
+///< std::replace_if
+///< Şarta uyanları değiştirir.
+
+std::replace_if(v.begin(), v.end(), [](int x){ return x > 2; }, 0);
+
+  * 
+  * Örnek:
+  * 
+
+///< std::transform
+///< Her elemana fonksiyon uygular.
+
+std::vector<int> v = {1, 2, 3};
+std::transform(v.begin(), v.end(), v.begin(), [](int x){ return x * x; });
+// v = {1, 4, 9}
+
+  * 
+  * 
+
+
+* Swap & Reverse
+  * 
+  * Örnek:
+  * 
+
+///< std::swap_ranges
+
+std::vector<int> v1 = {1, 2, 3};
+std::vector<int> v2 = {4, 5, 6};
+std::swap_ranges(v1.begin(), v1.end(), v2.begin()); // değiştirir
+
+  * 
+  * Örnek:
+  * 
+
+///< std::reverse
+
+std::vector<int> v = {1, 2, 3};
+std::reverse(v.begin(), v.end()); // 3 2 1
+
+  * 
+  * Örnek:
+  * 
+
+///< std::rotate
+
+std::vector<int> v = {1, 2, 3, 4, 5};
+std::rotate(v.begin(), v.begin() + 2, v.end()); // 3 4 5 1 2
+
+  * 
+  * 
+
+
+* Unique & Remove Idiom
+  * 
+  * Örnek:
+  * 
+
+///< std::unique
+///< Tekrarlanan ardışık elemanları siler (fiziksel olarak değil, sona taşır).
+
+std::vector<int> v = {1, 1, 2, 2, 3};
+auto it = std::unique(v.begin(), v.end());
+v.erase(it, v.end()); // 1 2 3
+
+  * 
+  * Örnek:
+  * 
+
+///< std::remove + erase
+///< Tüm eşleşen elemanları kaldırır.
+
+std::vector<int> v = {1, 2, 3, 2, 4};
+v.erase(std::remove(v.begin(), v.end(), 2), v.end()); // 1 3 4
+
+  * 
+  * 
+
+
 *** MÜLAKAT:
-* MÖHÜÖM
+  * Soru: std::copy ile std::move farkı nedir?
+  * Cevap:
+  * copy kopyalar, kaynak korunur. move taşır, kaynak geçersizleşir.
+  * 
+  * Soru: remove neden elemanları gerçekten silmez?
+  * Cevap:
+  * Sadece sona taşır, gerçek silme için erase gerekir (remove-erase idiom).
+  * 
+  * Soru: transform fonksiyonunun avantajı nedir?
+  * Cevap:
+  * Fonksiyonel programlamadaki map gibi davranır, her elemana işlem uygular.
+  * 
+  * Soru: reverse ve rotate farkı nedir?
+  * Cevap:
+  * reverse ters çevirir, rotate ise belirtilen noktadan kaydırır.
+  * 
+  * Soru: unique ile set farkı nedir?
+  * Cevap:
+  * unique sadece ardışık tekrarları kaldırır. set tüm tekrarları kaldırır ve sıralı tutar.
+  * 
+  * 
+  * remove-erase idiom mutlaka bil -->> mülakatlarda klasik soru.
+  * 
+  * Iterator algoritmalarını kullanırken hedef kapsayıcının yeterli kapasitesi olduğuna dikkat et.
+  * 
+  * transform fonksiyonu çok sık kullanılır -->> genellikle lambda ile.
+  * 
+  * iota compile-time sabit üreten algoritmalarla karıştırılmamalı, runtime’da doldurur.
+  * 
+  * reverse, rotate, swap_ranges genellikle sıralama ve permütasyon sorularında çıkar.
+  * 
+  * 
 ***
 
 ******************************************************************************/  
