@@ -5371,12 +5371,321 @@ v.erase(std::remove(v.begin(), v.end(), 2), v.end()); // 1 3 4
 ** Education
 
 
-* 
+* Lambda Expression
+  * Derleyiciye bir sınıf kodu yazan ya da sınıf tanımlatan ifadedir.
+  *     Aynı zamanda derleyicinin oluşturduğu sınıf türünden temporary object dönüştürür.
+  * 
+  * closure type : Derleyicinin lambda karşılığı oluşturduğu sınıf türüdür.
+  * closure object : Oluşan nesneye (PR-Value expression) denir.
+  * 
+  * [] -->> lambda introducer
+  * 
+  * []() -->> Derleyicinin tanımladığı sınıfa derleyici operator fonk yazıyor.
+  * 
+  * [](){} -->> Derleyicinin yazacağı sınıfın çağrı operatorunun kodunu yazıyor.
   * 
   * 
 
+
+* Kuralları:
+  * 
+  * Lambda içeriği:
+  * 
+
+///< [](int x) { return x * x; }
+
+class xyz123 {
+public:
+    int operator()(int x)const
+    {
+        return x * x;
+    }
+
+};
+
+  * 
+  * Algoritmadaki kullanımı:
+  * 
+
+int main()
+{
+    using namespace std;
+    vector<string> svec;
+    rfill(svec, 100, rname);
+    print(svec);
+
+    cout <<
+        count_if(svec.begin(), svec.end(), [](const string& s) {return s.length() == 7; }) << '\n';
+}
+
+  * 
+  * Lambda function içinde statik ömürlü nesneleri doğran kendi isimleriyle kullanabilir.z
+  * 
+
+void func()
+{
+    static int x = 0;
+    
+    class Myclass {
+    public:
+        void foo()
+        {
+            x++;
+        }
+    };
+
+    Myclass m;
+
+    m.foo();
+}
+
+  * 
+  * Capture Clause
+  * 
+
+int main()
+{
+    int x = 10;
+
+    //auto f = [x]() {++x;}; ///< Legal mi? İllegaldir. Const üye fonk.
+                             ///< sınıfın veri elemanını değiştirmeye çalışıyor.
+                             ///< Doğrusu:
+                             ///< auto f = [x]()mutable { ++x; };
+}
+
+  * 
+  * Örnek:
+  * 
+
+int main()
+{
+    auto f1 = []() {};
+    auto f2 = []() {};
+
+    ///< Compile-time'da f1 ve f2 aynı olup olmadığını nasıl doğrularım?
+    ///< decltype: Bir isimle kullanıldığı zaman türünü veriyor.
+    constexpr bool b = std::is_same_v<declytpe(f1), decltype(f2)>;
+
+    std::cout << typeid(f1).name() << '\n';
+    std::cout << typeid(f2).name() << '\n';
+
+    auto f2 = f1;   ///< f1 ve f2 türü aynı, ctor ile dünyaya geldi.
+    
+    decltype(f1) f2;    ///< C++20 standardına kadar syntax hatası vardır.
+                        ///< Default ctor deleted! hatası olur.
+
+    auto f1 = []() {};
+    auto f2 = f1;
+
+    f1 = f2;
+}
+
+  * 
+  * 
+
+
+* Lambda Expression General Syntax
+  * // []()->{code}
+  *     -->> 
+  * 
+  * // []()mutable{code}
+  *     -->> Üye fonk. conflict fonksiyon yapma demektir.
+  * 
+  * // []()noexcept{code}
+  *     -->> lambda fonk'larda da fonk'nun expection throw etme garantisi vermesini sağlar
+  * 
+  * Örnek:
+  * 
+
+int main()
+{
+    auto f = [](int x) { return x * x; };
+
+    noexcept(f(12));    ///< constant expressiondur.
+                        ///< f(12) çağrılmaz.
+                        ///< bool türüdür.
+                        ///< değeri false.
+
+    constexpr auto b = noexcept(f(12)); 
+                                        ///< bool türüdür.
+                                        ///< değeri false.
+                                        ///< 
+}
+
+  * 
+  * 
+
+
+* Lambda Expressions (C++11 ve sonrası)
+  * Lambda, isimsiz (anonim) fonksiyon tanımlamaya yarar.
+  * 
+  * Temel sözdizimi:
+  *     [capture_list](parametreler) -> dönüş_tipi { fonksiyon_gövdesi }
+  * 
+  * Dönüş tipi çoğunlukla çıkarımsal (auto) olarak belirlenir, yazmak şart değildir.
+  * Lambda’lar genellikle STL algoritmaları ile birlikte kullanılır.
+  * 
+  * Capture list (yakalama listesi):
+  * [ ] -->> hiçbir şey yakalama
+  * [=] -->> tüm değişkenleri kopya ile yakala
+  * [&] -->> tüm değişkenleri referans ile yakala
+  * [x] -->> sadece x’i kopya ile yakala
+  * [&x] -->> sadece x’i referans ile yakala
+  * [=, &y] -->> tümünü kopya ile yakala ama y’yi referans ile
+  * [&, x] -->> tümünü referans ile yakala ama x’i kopya ile
+  * 
+  * Örnek:
+  * 
+
+///< Basit lambda
+auto f = [](){ std::cout << "Hello Lambda!" << std::endl; };
+f();
+
+  * 
+  * Örnek:
+  * 
+
+///< Parametreli lambda
+auto sum = [](int a, int b){ return a + b; };
+std::cout << sum(3, 4);  // 7
+
+  * 
+  * Örnek:
+  * 
+
+///< Capture kullanımı
+int x = 10;
+auto f = [=](){ std::cout << x << std::endl; }; // kopya ile
+f();
+auto g = [&](){ x += 5; }; // referans ile
+g();
+std::cout << x; // 15
+
+  * 
+  * Örnek:
+  * 
+
+///< STL algoritmaları ile lambda
+std::vector<int> v = {1,2,3,4,5};
+std::for_each(v.begin(), v.end(), [](int n){
+    std::cout << n*n << " "; 
+});
+
+  * 
+  * Örnek:
+  * 
+
+///< Mutable lambda
+int a = 5;
+auto f = [=]() mutable { a += 10; return a; };
+std::cout << f(); // 15
+std::cout << a;   // 5 (orijinali değişmedi)
+
+  * 
+  * Örnek:
+  * 
+
+///< Return type belirleme
+auto div = [](int a, int b) -> double {
+    return (double)a / b;
+};
+std::cout << div(5,2); // 2.5
+
+  * 
+  * Örnek:
+  * 
+
+///< C++14 -->> generic lambda (auto parametre)
+auto f = [](auto x, auto y){ return x + y; };
+std::cout << f(3, 4) << " " << f(2.5, 4.1);
+
+  * 
+  * Örnek:
+  * 
+
+///< C++17 -->> constexpr lambda
+constexpr auto sq = [](int n){ return n*n; };
+static_assert(sq(5) == 25);
+
+  * 
+  * Örnek:
+  * 
+
+///< C++20 -->> template parametreli lambda
+auto f = []<typename T>(T x){ return x + x; };
+std::cout << f(10) << " " << f(2.5);
+
+  * 
+  * 
 
 *** MÜLAKAT:
+  * Soru-1: Lambda neden normal fonksiyon yerine tercih edilir?
+  * Cevap:
+  * Kısa süreli kullanım için pratiktir.
+  * Kodun yanında tanımlanır -->> okunabilirliği artırır.
+  * STL algoritmaları ile birlikte çok güçlüdür (map, filter, reduce gibi).
+  * 
+  * Soru-2: Lambda capture list [=] ve [&] farkı nedir?
+  * Cevap:
+  * [=] -->> tüm değişkenleri kopya ile yakalar.
+  * [&] -->> tüm değişkenleri referans ile yakalar.
+  * 
+  * Soru-3: Lambda içindeki değişkenler neden immutable (değiştirilemez)?
+  * Cevap:
+  * Çünkü default olarak const gibi davranır.
+  *     Eğer değişiklik yapılacaksa mutable anahtar sözcüğü kullanılmalı.
+  * 
+  * Soru-4: Mutable lambda ne işe yarar?
+  * Cevap:
+  * Kopya ile yakalanan değişkenin lambda gövdesinde değiştirilebilmesini sağlar.
+  * 
+  * Soru-5: Lambda ve functor arasındaki fark nedir?
+  * Cevap:
+  * Functor -->> operator() overload eden sınıftır.
+  * Lambda -->> compiler tarafından otomatik oluşturulmuş functor’dur (closure).
+  *     Daha kısa syntax sağlar.
+  * 
+  * Soru-6: Lambda’nın dönüş tipini nasıl belirleriz?
+  * Cevap:
+  * Çoğu durumda compiler auto ile çıkarım yapar.
+  * Ama explicit belirtmek için -> dönüş_tipi yazılır.
+  * auto f = [](int a, int b) -> double { return (double)a / b; };
+  * 
+  * Soru-7: C++14, C++17 ve C++20 ile lambda’da gelen yenilikler nelerdir?
+  * Cevap:
+  * C++14 -->> Generic lambda (auto parametreler)
+  * C++17 -->> constexpr lambda (compile-time çalışabilir)
+  * C++20 -->> Template parametreli lambda
+  * 
+  * Soru-8: Lambda neden STL algoritmaları için çok önemlidir?
+  * Cevap:
+  * Çünkü STL algoritmaları callback fonksiyon ister.
+  *     Lambda ile bu callback kolayca inline yazılır.
+  * 
+  * 
+  * 
+  * Lambda’lar isimsiz fonksiyonlardır, kısa süreli işlerde çok pratiktir.
+  * 
+  * capture list en kritik kısımdır:
+  *     [=], [&], [&, x], [=, &y] farklarını mutlaka bil.
+  * 
+  * remove-erase idiom ile birlikte sık sık lambda kullanımı sorulabilir:
+  * v.erase(std::remove_if(v.begin(), v.end(), [](int x){ return x % 2 == 0; }), v.end());
+  * Tüm çift sayıları siler.
+  * 
+  * Mutable lambda: Kopya ile yakalanan değişkeni değiştirmek için kullanılır.
+  *     Normalde kopya const gibidir.
+  * 
+  * Lambda’lar aslında compiler tarafından functor sınıflarına dönüştürülür (operator()).
+  * 
+  * Lambda bir closure’dır. Yani dışarıdaki değişkenlere (state) erişebilir.
+  * 
+  * STL algoritmaları ile birlikte lambda kullanmak en sık görülen mülakat pattern’idir.
+  * 
+  * C++14, C++17, C++20 ile gelen lambda gelişmelerini bilmek artı puan getirir:
+  *     C++14 -->> generic lambda (auto parametreler)
+  *     C++17 -->> constexpr lambda
+  *     C++20 -->> template lambda
   * 
   * 
 ***
